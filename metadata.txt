@@ -1,0 +1,38 @@
+# This file contains metadata for your plugin. Beginning
+# with version 1.8 this is the preferred way to supply information about a
+# plugin. The current method of embedding metadata in __init__.py will
+# be supported until version 2.0
+
+# This file should be included when you package your plugin.
+
+# Mandatory items:
+
+
+[general]
+name=Toporobot Importer
+qgisMinimumVersion=2.0
+description=Import cave galleries from Toporobot / Limelight files.
+description[fr]=Importe des galeries de grottes depuis des fichiers Toporobot / Limelight.
+description[de]=Importiert Höhlengänge aus Toporobot / Limelight Dateien.
+version=0.2.2
+author=Florian Hof
+email=florian@speleo.ch
+
+# end of mandatory metadata
+
+# Optional items:
+
+changelog=built-in help available, default input encoding to Mac-Roman, better cave name recognition.
+
+# tags are comma separated with spaces allowed
+tags=toporobot, limelight, caving, cave, speleo, speleology, import
+
+homepage=http://hub.qgis.org/projects/ToporobotImporter/wiki
+tracker=http://hub.qgis.org/projects/ToporobotImporter/issues
+repository=
+icon=toporobot.png
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version
+deprecated=False
+

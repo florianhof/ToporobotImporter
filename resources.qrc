@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/plugins/toporobotimporter">
+        <file>images/icon.png</file>
+        <file>images/schema_line.png</file>
+        <file>images/schema_lines.png</file>
+        <file>images/schema_points.png</file>
+        <file>images/schema_polygon.png</file>
+        <file>images/schema_polygons.png</file>
+    </qresource>
+</RCC>
