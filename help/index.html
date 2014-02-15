@@ -1,11 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<title>Wiki</title>
+<title>Toporobot Importer help</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <style>
 body { font:80% Verdana,Tahoma,Arial,sans-serif; color: #303030;}
-h1, h2, h3, h4 {  font-family: "Trebuchet MS",Verdana,sans-serif; }
+h1, h2, h3, h4 {font-family: "Trebuchet MS",Verdana,sans-serif; }
 h1 {font-size: 20px; border-bottom: 1px solid #BBBBBB; }
 h2 {font-size: 16px; border-bottom: 1px solid #BBBBBB; }
 h3 {font-size: 13px; border-bottom: 1px dotted #BBBBBB; }
@@ -21,60 +21,65 @@ h1:hover a.wiki-anchor, h2:hover a.wiki-anchor, h3:hover a.wiki-anchor { display
 <body>
 <h1 id="Usage">Usage<a href="#Usage" class="wiki-anchor">&para;</a></h1>
 
-	<p>The purpose, example of data and more extra are described on <a href="http://hub.qgis.org/wiki/toporobot-importer/Wiki">http://hub.qgis.org/wiki/toporobot-importer/Wiki</a>.</p>
-	<p>Here are only the parameters described.</p>
+
+    <p>Let see and describe the parameters, because that's the main thing.</p>
+    <p>The purpose, example of data and more extra are available on <a href="http://hub.qgis.org/wiki/ToporobotImporter/wiki">http://hub.qgis.org/wiki/ToporobotImporter/wiki</a>.</p>
 
 
-	<h2 id="Toporobot-Text-file">Toporobot .Text file<a href="#Toporobot-Text-file" class="wiki-anchor">&para;</a></h2>
+    <h2 id="Parameters">Parameters<a href="#Parameters" class="wiki-anchor">&para;</a></h2>
 
 
-	<p>Toporobot / Limelight is a software for managing cave surveys. It exports its data in a well known text file. This text file is expected to have a Mac-Roman encoding. Alternatively, use only latin characters. Known limitation: the left/right/top/bottom are expected to be in meter. Select the .Text file of the cave you want to import. It's of course mandatory for the import.</p>
+    <h3 id="Toporobot-Text-file">Toporobot .Text file<a href="#Toporobot-Text-file" class="wiki-anchor">&para;</a></h3>
 
 
-	<h2 id="Toporobot-Coord-file">Toporobot .Coord file<a href="#Toporobot-Coord-file" class="wiki-anchor">&para;</a></h2>
+    <p><img src="../toporobot.png" title="Icon of the Toporobot application" alt="Icon of the Toporobot application" /> Toporobot / Limelight is a software for managing cave surveys. It exports its data in a well known text file. This text file is expected to have a Mac-Roman encoding. Alternatively, use only latin characters. Known limitation: the left/right/top/bottom are expected to be in meter. Select the .Text file of the cave you want to import. It's of course mandatory for the import.</p>
 
 
-	<p>As the plug-in doesn't compute the coordinates (and loop closing), it takes already computed coordinates. The coordinate are read from a coordinate file from Toporobot / Limelight. To generate this file, open your cave in Limelight and go to the menu File > List > Coordinates and make sure "Coordinates" is checked. In the plug-in, select the .Coord file of the cave you want to import. It's mandatory for the import.</p>
+    <h3 id="Toporobot-Coord-file">Toporobot .Coord file<a href="#Toporobot-Coord-file" class="wiki-anchor">&para;</a></h3>
 
 
-	<h2 id="Merges-mapping-file">Merge's mapping file<a href="#Merges-mapping-file" class="wiki-anchor">&para;</a></h2>
+    <p>As the plug-in doesn't compute the coordinates (and loop closing), it takes already computed coordinates. The coordinate are read from a coordinate file from Toporobot / Limelight. To generate this file, open your cave in Limelight and go to the menu File > List > Coordinates and make sure "Coordinates" is checked. In the plug-in, select the .Coord file of the cave you want to import. It's mandatory for the import.</p>
 
 
-	<p>Importing hundreds of file would be boring. To avoid this, you can merge a lot of files so as to compute the coordinates and import the whole. By specifying the merge's mapping file (.csv file), the original file name and serie number can be retrieved as of before the merge. The merge tool haven't been published yet. On the meantime, contact the author to get it.</p>
+    <h3 id="Merges-mapping-file">Merge's mapping file<a href="#Merges-mapping-file" class="wiki-anchor">&para;</a></h3>
 
 
-	<h2 id="Layer-with-Elevation">Layer with Elevation<a href="#Layer-with-Elevation" class="wiki-anchor">&para;</a></h2>
+    <p>Importing hundreds of files would be boring. To avoid this, you can merge a lot of files so as to compute the coordinates and import the whole at once. By specifying the merge's mapping file (.csv file), the original file name and serie number can be retrieved as of before the merge. To merge, use the <a href="http://hub.qgis.org/wiki/toporobotimporter/wiki#Merge" class="wiki-page">merge tool</a> I created.</p>
 
 
-	<p>You can select a raster layer which is a "digital elevation model" (DEM). If given, the plug-in will get elevation of the surface above each survey point and compute the vertical depth. The depth can then be used to nicely color the map and/or to know how deep to dig ;-).</p>
+    <h3 id="Layer-with-Elevation">Layer with Elevation<a href="#Layer-with-Elevation" class="wiki-anchor">&para;</a></h3>
 
 
-	<h2 id="Output-shapefiles">Output shapefiles<a href="#Output-shapefiles" class="wiki-anchor">&para;</a></h2>
+    <p>You can select a raster layer which is a "digital elevation model" (DEM). If given, the plug-in will get elevation of the surface above each survey point and compute the vertical depth. The depth can then be used to nicely color the map and/or to know how deep to dig ;-).</p>
 
 
-	<p>Several sorts of shapefiles (.shp) can be generated. Choose at least one, otherwise you'll get no result. The texts and icons (and the knowledge of Toporobot) should make clear what will be generated.</p>
+    <h3 id="Output-shapefiles">Output shapefiles<a href="#Output-shapefiles" class="wiki-anchor">&para;</a></h3>
 
 
-	<h2 id="Coordinate-reference-system">Coordinate reference system<a href="#Coordinate-reference-system" class="wiki-anchor">&para;</a></h2>
+    <p>Several sorts of shapefiles (.shp) can be generated. Choose at least one, otherwise you'll get no result. The texts and icons (and the knowledge of Toporobot) should make clear what will be generated.</p>
 
 
-You can optionally define which coordinate reference system has the output file. It doesn't affect the input coordinates, it's only a metadata. Actually Toporobot was originally written for a metric coordinate reference system, namely the CH1903 / LV03. If at the import you are bothered by dialog asking you the coordinate reference system, either: 
-	<ul>
-	<li>De-activate the "on-the-fly projection" of the project and/or of QGIS (preferences). </li>
-		<li>In the QGIS preference, define which is the default coordinate reference system if none is indicated</li>
-		<li>Define the coordinate reference system in the plug-in.</li>
-	</ul>
+    <h3 id="Coordinate-reference-system">Coordinate reference system<a href="#Coordinate-reference-system" class="wiki-anchor">&para;</a></h3>
 
 
-	<h2 id="Output-by">Output by<a href="#Output-by" class="wiki-anchor">&para;</a></h2>
+You can optionally define which coordinate reference system has the output file. It doesn't affect the input coordinates, it's only a metadata. Actually Toporobot was originally written for a metric coordinate reference system, namely the CH1903 / LV03. If at the import you are bothered by dialog asking you the coordinate reference system, either:
+    <ul>
+    <li>De-activate the "on-the-fly projection" of the project and/or of QGIS (preferences). </li>
+        <li>In the QGIS preference, define which is the default coordinate reference system if none is indicated</li>
+        <li>Define the coordinate reference system in the plug-in.</li>
+    </ul>
 
 
-	<p>If the output file doesn't exist, don't matter. If the output file does already exist, choose if the existing shapes should be deleted or kept. Choose "Overriding" if you want to replace all the existing shapes with your new cave. Choose "Appending" if you want to add some (or one) more caves to the shapefile. By appending, don't mix the ouput types (points with lines for example).</p>
+    <h3 id="Output-by">Output by<a href="#Output-by" class="wiki-anchor">&para;</a></h3>
 
 
-	<h2 id="Show-the-created-layers">Show the created layer(s)<a href="#Show-the-created-layers" class="wiki-anchor">&para;</a></h2>
+    <p>If the output file doesn't exist, don't matter. If the output file does already exist, choose if the existing shapes should be deleted or kept. Choose "Overriding" if you want to replace all the existing shapes with your new cave. Choose "Appending" if you want to add some (or one) more caves to the shapefile. By appending, don't mix the ouput types (points with lines for example).</p>
 
 
-	<p>Surely you would like to see straightaway your cave on the GIS. Then let this option checked. Don't worry if the shapefile is already shown. Un-check if you are only interested in generating a shapefile (.shp). If unchecked, already shown shapefiles won't disapear from the GIS.</p>
+    <h3 id="Show-the-created-layers">Show the created layer(s)<a href="#Show-the-created-layers" class="wiki-anchor">&para;</a></h3>
+
+
+    <p>Surely you would like to see straightaway your cave on the GIS. Then let this option checked. Don't worry if the shapefile is already shown. Un-check if you are only interested in generating a shapefile (.shp). If unchecked, already shown shapefiles won't disapear from the GIS.</p>
+
 </body>
 </html>
