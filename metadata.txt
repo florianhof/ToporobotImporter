@@ -29,7 +29,7 @@ tags=toporobot, limelight, caving, cave, speleo, speleology, import
 
 homepage=http://hub.qgis.org/projects/ToporobotImporter/wiki
 tracker=http://hub.qgis.org/projects/ToporobotImporter/issues
-repository=
+repository=https://github.com/florianhof/ToporobotImporter
 icon=toporobot.png
 experimental=False
 
