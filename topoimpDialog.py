@@ -144,7 +144,7 @@ class ToporobotImporterDialog(QDialog):
 
   def showHelp(self):
     #qgis.utils.showPluginHelp() # doesn't work :-(
-    help_file = "file:///"+ qgis.utils.pluginDirectory('toporobotimporter') + "/help/index.html"
+    help_file = "file:///"+ qgis.utils.pluginDirectory('ToporobotImporter') + "/help/index.html"
     QDesktopServices.openUrl(QUrl(help_file))
 
 
