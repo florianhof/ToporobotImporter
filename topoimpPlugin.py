@@ -61,11 +61,11 @@ class ToporobotImporterPlugin:
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(u"&Toporobot Importer", self.action)
+        self.iface.addPluginToMenu(u"&Import", self.action)
 
     def unload(self):
         # Remove the plugin menu item and icon
-        self.iface.removePluginMenu(u"&Toporobot Importer", self.action)
+        self.iface.removePluginMenu(u"&Import", self.action)
         self.iface.removeToolBarIcon(self.action)
 
     # run method that performs all the real work
