@@ -201,6 +201,17 @@ class LayerBand:
       self.layer = layer
       self.bandnr = bandnr
       self.bandname = bandname
+    def __eq__(self, other):
+      return ((type(self) is type(other))
+          and (self.layer == other.layer)
+          and (self.bandnr == other.bandnr)
+          and (self.bandname == other.bandname))
+    def __ne__(self, other):
+      return not self.__eq__(other)
+    def __hash__(self):
+      return hash(self.layer) + (self.bandnr * 31)
+    def __repr__(self):
+      return u'LayerBand(' + repr(self.layer) + ', ' + repr(self.bandnr) + ', \'' + self.bandname+ '\')'
     def getValueAt(self, point):
       from qgis.core import QgsRaster
       values = self.layer.dataProvider().identify(

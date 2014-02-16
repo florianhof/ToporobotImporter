@@ -69,26 +69,27 @@ class ToporobotImporterDialog(QDialog):
     ui = self.ui
 
     # init the dropdown with the possibly DEM layers
-    self.rasterLayerBands = [(-1, None, -1, '')]
+    currentLayerBand = None
+    if (ui.cbDemLayer.currentIndex() > 0):
+      currentLayerBand = ui.cbDemLayer.itemText(ui.cbDemLayer.currentIndex())
     for j in reversed(range(ui.cbDemLayer.count())):
       ui.cbDemLayer.removeItem(j)
-    ui.cbDemLayer.addItem('----------');
-    i = -1
+    ui.cbDemLayer.addItem('----------', None)
     for layer in QgsMapLayerRegistry.instance().mapLayers().values():
-      i = i + 1
-      if layer.type() == layer.RasterLayer:
+      if layer.type() == QgsMapLayer.RasterLayer:
         if layer.bandCount() == 1: # first the one-band images, so should be a DEM
-            self.rasterLayerBands.append((i, layer, 1, layer.bandName(1)))
-            ui.cbDemLayer.addItem(layer.name());
-    i = -1
+            rasterLayerBand = topoReader.LayerBand(layer, 1, layer.bandName(1))
+            ui.cbDemLayer.addItem(layer.name(), rasterLayerBand)
     for layer in QgsMapLayerRegistry.instance().mapLayers().values():
-      i = i + 1
-      if layer.type() == layer.RasterLayer:
+      if layer.type() == QgsMapLayer.RasterLayer:
         if layer.bandCount() > 1: # then the multi-bands images, just in case
           for j in range(layer.bandCount()):
-            self.rasterLayerBands.append((i, layer, j+1, layer.bandName(j+1)))
-            ui.cbDemLayer.addItem(layer.name() + ' / ' + layer.bandName(j+1));
-    ui.cbDemLayer.setCurrentIndex(0)
+            rasterLayerBand = topoReader.LayerBand(layer, j+1, layer.bandName(j+1))
+            ui.cbDemLayer.addItem(layer.name() + ' / ' + layer.bandName(j+1), rasterLayerBand)
+    if (currentLayerBand):
+      ui.cbDemLayer.setCurrentIndex(ui.cbDemLayer.findText(currentLayerBand))
+    else:
+      ui.cbDemLayer.setCurrentIndex(0)
     self.repaint()
 
     # now really show
@@ -184,12 +185,10 @@ class ToporobotImporterDialog(QDialog):
     self.process.topoCoordFilePath = unicode(ui.leToporobotCoord.text())
     self.process.mergeMappingFilePath = unicode(ui.leMergeMapping.text())
     self.process.demLayerBands = []
-    rasterLayerBand = self.rasterLayerBands[ui.cbDemLayer.currentIndex()]
-    if rasterLayerBand[1]:
-      demLayerBand = topoReader.LayerBand(layer=rasterLayerBand[1],
-                                          bandnr=rasterLayerBand[2],
-                                          bandname=rasterLayerBand[3] )
-      self.process.demLayerBands.append(demLayerBand)
+    if (ui.cbDemLayer.currentIndex() >= 0):
+      rasterLayerBand = ui.cbDemLayer.itemData(ui.cbDemLayer.currentIndex())
+      if (rasterLayerBand):
+        self.process.demLayerBands.append(rasterLayerBand)
     self.process.outFilePathWithLayerNameAndDrawer = [];
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
       if lineedit.text():
