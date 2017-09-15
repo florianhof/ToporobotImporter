@@ -23,8 +23,8 @@ changelog=selected dem layer now memorized.
 # tags are comma separated with spaces allowed
 tags=toporobot, limelight, caving, cave, speleo, speleology, import
 
-homepage=http://hub.qgis.org/projects/ToporobotImporter/wiki
-tracker=http://hub.qgis.org/projects/ToporobotImporter/issues
+homepage=https://github.com/florianhof/ToporobotImporter/wiki
+tracker=https://github.com/florianhof/ToporobotImporter/issues
 repository=https://github.com/florianhof/ToporobotImporter
 icon=toporobot.png
 experimental=False
