@@ -1,6 +1,4 @@
 # This file contains metadata for the plugin.
-# This file should be included when you package your plugin.
-
 # Mandatory items:
 
 
@@ -10,6 +8,13 @@ qgisMinimumVersion=2.0
 description=Import cave galleries from Toporobot / Limelight files.
 description[fr]=Importe des galeries de grottes depuis des fichiers Toporobot / Limelight.
 description[de]=Importiert Höhlengänge aus Toporobot / Limelight Dateien.
+about=A lot of caves are surveyed to know their geographic position.
+    On the computer, this survey is usually encoded in a dedicated software.
+    Such a software is Toporobot / Limelight, which files are well known.
+    The goal of this plug-in it to import those file in a GIS.
+    The cave extend can then be viewed along with a terrain map or with geological information.
+    Together with the geographic information, some information such as the cave name, gallery name, point number and the date of survey are recorded.
+    If a digital elevation model is available and given, the depth of each points in the cave is computed.
 version=0.2.5
 author=Florian Hof
 email=florian@speleo.ch
@@ -18,7 +23,12 @@ email=florian@speleo.ch
 
 # Optional items:
 
-changelog=correctly interprets backward directions and length units.
+changelog=
+    0.2.5 - correctly interprets backward directions and length units.
+    0.2.4 - selected dem layer now memorized.
+    0.2.3 - help corrected and improved, website moved, other minor changes.
+    0.2.2 - built-in help available, default input encoding to Mac-Roman, better cave name recognition
+    0.2.0 - first public version
 
 # tags are comma separated with spaces allowed
 tags=toporobot, limelight, caving, cave, speleo, speleology, import
