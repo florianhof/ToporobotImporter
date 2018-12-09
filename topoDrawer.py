@@ -176,6 +176,20 @@ def getLeftRightPoints(station):
     nextDir = None
     if station.nr < len(station.serie.stations) - 1:
       nextDir = station.serie.stations[station.nr+1].directionInRadian
+    meanDir = getMeanDir(prevDir, nextDir)
+    if meanDir is None:
+      return None
+    leftDir = meanDir - (math.pi / 2.0)
+    if leftDir < 0.0:
+      leftDir += (2.0 * math.pi)
+    leftVect = (math.sin(leftDir), math.cos(leftDir))
+    leftPt = QgsPoint(station.coordX + (leftVect[0] * station.leftInMeter),
+                      station.coordY + (leftVect[1] * station.leftInMeter))
+    rightPt = QgsPoint(station.coordX - (leftVect[0] * station.rightInMeter),
+                       station.coordY - (leftVect[1] * station.rightInMeter))
+    return (leftPt, rightPt)
+
+def getMeanDir(prevDir, nextDir):
     if prevDir is None:
       if nextDir is None:
         return None
@@ -190,15 +204,7 @@ def getLeftRightPoints(station):
         meanDir = (nextDir + prevDir) / 2.0 + math.pi
         if meanDir >= (2.0 * math.pi):
           meanDir -= (2.0 * math.pi)
-    leftDir = meanDir - (math.pi / 2.0)
-    if leftDir < 0.0:
-      leftDir += (2.0 * math.pi)
-    leftVect = (math.sin(leftDir), math.cos(leftDir))
-    leftPt = QgsPoint(station.coordX + leftVect[0] * station.left,
-                      station.coordY + leftVect[1] * station.left)
-    rightPt = QgsPoint(station.coordX - leftVect[0] * station.right,
-                       station.coordY - leftVect[1] * station.right)
-    return (leftPt, rightPt)
+    return meanDir
 
 
 # Fields and their content

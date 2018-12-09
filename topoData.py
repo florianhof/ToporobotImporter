@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import math
-import re
-
-toporobotFilenamePattern = re.compile(r"^(.+?)(_\d+)?(.Te?xt)?$", re.IGNORECASE);
 
 
 class TopoFile (object):
 
   def __init__(self):
     self.name = None
+    self.caveName = None
     self.path = None
     self.hasCoord = False
     self.unmerged = None # 0:unprocessed, 1: was unmerged, 2: new from unmerge
@@ -18,8 +16,6 @@ class TopoFile (object):
     self.trips = {} # do not modify, managed by TopoTrip
     self.codes = {} # do not modify, managed by TopoCode
     self.series = {} # do not modify, managed by TopoSerie
-
-  caveName = property((lambda self: toporobotFilenamePattern.match(self.name).group(1)))
 
 
 class TopoEntry (object):
@@ -75,6 +71,8 @@ class TopoCode (object):
     self.visible = None
     self.directionUnit = None
     self.slopeUnit = None
+    self.computeLengthInMeter = None
+    self.computeDirectionInRadian = None
 
   def setTopofile(self, value):
     if self._topofile and self._nrMerged in self._topofile.codes:
@@ -132,7 +130,10 @@ class TopoStation (object):
 
   nr = property((lambda self: self._nr))
   serie = property((lambda self: self._serie))
-  directionInRadian = property((lambda self: self.direction * 2.0 * math.pi / self.code.directionUnit))
+  directionInRadian = property((lambda self: self.code.computeDirectionInRadian(self.direction)))
+  lengthInMeter = property((lambda self: self.code.computeLengthInMeter(self.length)))
+  leftInMeter = property((lambda self: self.code.computeLengthInMeter(self.left)))
+  rightInMeter = property((lambda self: self.code.computeLengthInMeter(self.right)))
   depth = property((lambda self: (self.coordZ - self.groundAlti) if self.groundAlti else None))
   topAlti = property((lambda self: self.coordZ + self.top))
   bottomAlti = property((lambda self: self.coordZ - self.bottom))

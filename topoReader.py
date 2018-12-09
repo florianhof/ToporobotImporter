@@ -3,6 +3,8 @@
 import fileinput
 import os
 import datetime
+import re
+import sys
 #from qgis.core import QgsPoint, QgsRaster # only for importGroundAlti
 from topoData import *;
 
@@ -14,7 +16,7 @@ def readToporobot(toporobotFilePath,
     topofile = readToporobotText(toporobotFilePath)
     if coordFilePath:
       readToporobotCoord(coordFilePath, topofile)
-    if groundLayer:
+    if demLayerBands:
       readGroundAlti(topofile, demLayerBands)
     if mergeFilePath:
       topofiles = readMergeMapping(mergeFilePath, topofile)
@@ -22,12 +24,15 @@ def readToporobot(toporobotFilePath,
       topofiles = {topofile.name: topofile}
     return topofiles
 
+toporobotFilenamePattern = re.compile(r"^(.+?)(_\d+)?(.Te?xt)?$", re.IGNORECASE);
+
 def readToporobotText(filepath):
     
     topofile = TopoFile()
     topofile.path = filepath
     topofile.name = os.path.basename(filepath)
-    
+    topofile.caveName = toporobotFilenamePattern.match(topofile.name).group(1)
+
     #with open(filepath, 'rU') as file:
     file = open(filepath, 'rU')
     try:
@@ -66,6 +71,8 @@ def readToporobotText(filepath):
           code.visible = (float(line[73:80]) != -100.00)
           code.directionUnit = float(line[25:32])
           code.slopeUnit = float(line[33:40])
+          code.computeLengthInMeter = getComputeLengthInMeter(code)
+          code.computeDirectionInRadian = getComputeDirectionInRadian(code)
         elif serieNb <= 0:  # unused, skip
           pass
         elif stationNb == -2: # serie's name
@@ -91,6 +98,31 @@ def readToporobotText(filepath):
     finally:
       file.close()
     return topofile
+
+def getComputeLengthInMeter(code):
+    lengthUnit = code.directionUnit % 10
+    if   lengthUnit == 0 or lengthUnit == 9:
+        return (lambda length: length)
+    elif lengthUnit == 8 or lengthUnit == 7:
+        return (lambda length: length * 0.3048)
+    else:
+        raise ValueError("unknown length unit '"+str(directionUnit)+"' for code "+str(code.nr))
+
+revolution = 2.0 * math.pi
+half = math.pi
+
+def getComputeDirectionInRadian(code):
+    directionUnit = code.directionUnit
+    if   directionUnit > 390 and directionUnit <= 400:
+        return (lambda direction: revolution * direction / 400)
+    elif directionUnit > 380 and directionUnit <= 390:
+        return (lambda direction: (revolution * direction / 400 + half) % revolution)
+    elif directionUnit > 350 and directionUnit <= 360:
+        return (lambda direction: revolution * direction / 360)
+    elif directionUnit > 340 and directionUnit <= 350:
+        return (lambda direction: (revolution * direction / 360 + half) % revolution)
+    else:
+        raise ValueError("unknown directionUnit '"+str(directionUnit)+"' for code "+str(code.nr))
 
 
 def readToporobotCoord(filepath, topofile):
@@ -238,4 +270,9 @@ def convDateFromTopo(string):
     else:
       raise ValueError("unknown date format '"+string+"'")
     return '%04d-%02d-%02d' % (year, month, day)
+
+
+if __name__ == '__main__':
+    topofiles = readToporobot(sys.argv[1])
+    print(topofiles)
 

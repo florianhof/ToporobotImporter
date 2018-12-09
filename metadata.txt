@@ -10,7 +10,7 @@ qgisMinimumVersion=2.0
 description=Import cave galleries from Toporobot / Limelight files.
 description[fr]=Importe des galeries de grottes depuis des fichiers Toporobot / Limelight.
 description[de]=Importiert Höhlengänge aus Toporobot / Limelight Dateien.
-version=0.2.4
+version=0.2.5
 author=Florian Hof
 email=florian@speleo.ch
 
@@ -18,7 +18,7 @@ email=florian@speleo.ch
 
 # Optional items:
 
-changelog=selected dem layer now memorized.
+changelog=correctly interprets backward directions and length units.
 
 # tags are comma separated with spaces allowed
 tags=toporobot, limelight, caving, cave, speleo, speleology, import
