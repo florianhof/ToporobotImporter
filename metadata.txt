@@ -4,7 +4,7 @@
 
 [general]
 name=Toporobot Importer
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
 description=Import cave galleries from Toporobot / Limelight files.
 description[fr]=Importe des galeries de grottes depuis des fichiers Toporobot / Limelight.
 description[de]=Importiert Höhlengänge aus Toporobot / Limelight Dateien.
@@ -15,7 +15,7 @@ about=A lot of caves are surveyed to know their geographic position.
     The cave extend can then be viewed along with a terrain map or with geological information.
     Together with the geographic information, some information such as the cave name, gallery name, point number and the date of survey are recorded.
     If a digital elevation model is available and given, the depth of each points in the cave is computed.
-version=0.2.5
+version=0.2.6
 author=Florian Hof
 email=florian@speleo.ch
 
@@ -24,6 +24,7 @@ email=florian@speleo.ch
 # Optional items:
 
 changelog=
+    0.2.6 - migrate to QGIS 3
     0.2.5 - correctly interprets backward directions and length units.
     0.2.4 - selected dem layer now memorized.
     0.2.3 - help corrected and improved, website moved, other minor changes.
