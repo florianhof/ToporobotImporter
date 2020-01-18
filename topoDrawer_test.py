@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 import unittest
-import topoDrawer
+from . import topoDrawer
 import math
 
 quarter = math.pi / 2.0 # == 100 grad

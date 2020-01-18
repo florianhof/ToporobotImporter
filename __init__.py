@@ -20,8 +20,9 @@
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
+from __future__ import absolute_import
 
 def classFactory(iface):
     # load ToporobotImporter class from file ToporobotImporter
-    from topoimpPlugin import ToporobotImporterPlugin
+    from .topoimpPlugin import ToporobotImporterPlugin
     return ToporobotImporterPlugin(iface)

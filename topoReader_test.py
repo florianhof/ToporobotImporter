@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 import unittest
-import topoReader
+from . import topoReader
 import math
-from topoData import *;
+from .topoData import *;
 
 quarter = math.pi / 2.0 # == 100 grad
 

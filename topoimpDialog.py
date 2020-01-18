@@ -19,18 +19,21 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from ui_toporobotimporter import Ui_ToporobotImporter
+from builtins import str
+from builtins import range
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
+from .ui_toporobotimporter import Ui_ToporobotImporter
 from qgis.core import *
 from qgis.gui import QgsGenericProjectionSelector
 import qgis.utils
 import os
 import os.path
-from topoimpProcess import ToporobotImporterProcess, getLayerFromDatapath
-import topoReader
-import topoDrawer
+from .topoimpProcess import ToporobotImporterProcess, getLayerFromDatapath
+from . import topoReader
+from . import topoDrawer
 
 
 class ToporobotImporterDialog(QDialog):
@@ -50,9 +53,9 @@ class ToporobotImporterDialog(QDialog):
     ui.leSRS.setValidator(QRegExpValidator(QRegExp("(^epsg:{1}\\s*\\d+)|(^\\+proj.*)", Qt.CaseInsensitive), ui.leSRS));
 
     # connect the buttons to actions
-    QObject.connect(ui.bBrowseToporobotText, SIGNAL("clicked()"), self.browseForInToporobotTextFileFunction(ui.leToporobotText))
-    QObject.connect(ui.bBrowseToporobotCoord, SIGNAL("clicked()"), self.browseForInToporobotCoordFileFunction(ui.leToporobotCoord))
-    QObject.connect(ui.bBrowseMergeMapping, SIGNAL("clicked()"), self.browseForInMergeMappingFileFunction(ui.leMergeMapping))
+    ui.bBrowseToporobotText.clicked.connect(self.browseForInToporobotTextFileFunction(ui.leToporobotText))
+    ui.bBrowseToporobotCoord.clicked.connect(self.browseForInToporobotCoordFileFunction(ui.leToporobotCoord))
+    ui.bBrowseMergeMapping.clicked.connect(self.browseForInMergeMappingFileFunction(ui.leMergeMapping))
     self.outShapeFileFormWidgets = [
       (ui.lbOutPoints, ui.leOutPoints, ui.bBrowseOutPoints, topoDrawer.StationsDrawer()),
       (ui.lbOutAims, ui.leOutAims, ui.bBrowseOutAims, topoDrawer.AimsDrawer()),
@@ -60,9 +63,9 @@ class ToporobotImporterDialog(QDialog):
       (ui.lbOutSeries, ui.leOutSeries, ui.bBrowseOutSeries, topoDrawer.SeriesDrawer()),
       (ui.lbOutSeriesBorder, ui.leOutSeriesBorder, ui.bBrowseOutSeriesBorder, topoDrawer.SeriesSurfaceDrawer())]
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
-      QObject.connect(button, SIGNAL("clicked()"), self.browseForOutShapefileFunction(lineedit))
-    QObject.connect(ui.bSRS, SIGNAL("clicked()"), self.browseForSRS)
-    QObject.connect(ui.buttonBox, SIGNAL("helpRequested()"), self.showHelp)
+      button.clicked.connect(self.browseForOutShapefileFunction(lineedit))
+    ui.bSRS.clicked.connect(self.browseForSRS)
+    ui.buttonBox.helpRequested.connect(self.showHelp)
 
 
   def show(self):
@@ -72,15 +75,15 @@ class ToporobotImporterDialog(QDialog):
     currentLayerBand = None
     if (ui.cbDemLayer.currentIndex() > 0):
       currentLayerBand = ui.cbDemLayer.itemText(ui.cbDemLayer.currentIndex())
-    for j in reversed(range(ui.cbDemLayer.count())):
+    for j in reversed(list(range(ui.cbDemLayer.count()))):
       ui.cbDemLayer.removeItem(j)
     ui.cbDemLayer.addItem('----------', None)
-    for layer in QgsMapLayerRegistry.instance().mapLayers().values():
+    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
       if layer.type() == QgsMapLayer.RasterLayer:
         if layer.bandCount() == 1: # first the one-band images, so should be a DEM
             rasterLayerBand = topoReader.LayerBand(layer, 1, layer.bandName(1))
             ui.cbDemLayer.addItem(layer.name(), rasterLayerBand)
-    for layer in QgsMapLayerRegistry.instance().mapLayers().values():
+    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
       if layer.type() == QgsMapLayer.RasterLayer:
         if layer.bandCount() > 1: # then the multi-bands images, just in case
           for j in range(layer.bandCount()):
@@ -105,7 +108,7 @@ class ToporobotImporterDialog(QDialog):
     return lambda: self.browseForInFile(lineedit, u"Input Merge mapping file", u"Comma-separated values (*.csv);;All (*.*)")
 
   def browseForInFile(self, lineedit, caption, selectedFilter):
-    filename = QFileDialog.getOpenFileName(self, caption, self.lastInputDirectory, selectedFilter)
+    filename, __ = QFileDialog.getOpenFileName(self, caption, self.lastInputDirectory, selectedFilter)
     if filename:
       fileinfo = QFileInfo(filename)
       lineedit.clear()
@@ -113,7 +116,7 @@ class ToporobotImporterDialog(QDialog):
       self.lastInputDirectory = fileinfo.absolutePath()
 
   def browseForOutShapefile(self, lineedit):
-    filename = QFileDialog.getSaveFileName(self, u"Output Shapefile", self.lastOutputDirectory, u"Shapefiles (*.shp)")
+    filename, __ = QFileDialog.getSaveFileName(self, u"Output Shapefile", self.lastOutputDirectory, u"Shapefiles (*.shp)")
     if filename:
       if not filename.lower().endswith(".shp"):
         filename = filename + ".shp"
@@ -160,13 +163,13 @@ class ToporobotImporterDialog(QDialog):
     nbOutFiles = 0
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
       if lineedit.text():
-        outPath = unicode(lineedit.text())
+        outPath = str(lineedit.text())
         nbOutFiles += 1
         existingLayer = getLayerFromDatapath(outPath)
         if (not existingLayer) and ui.rbAppend.isChecked() and os.path.exists(outPath):
           existingLayer = QgsVectorLayer(outPath, None, "ogr")
         if existingLayer:
-          if existingLayer.wkbType() <> drawer.wkbType():
+          if existingLayer.wkbType() != drawer.wkbType():
             errorMsgs.append(u"Cannot append to the file \""+os.path.basename(outPath)+u"\" because its type is not compatible")
           del existingLayer
     if nbOutFiles == 0:
@@ -181,9 +184,9 @@ class ToporobotImporterDialog(QDialog):
   def defineProcess(self):
     self.process = ToporobotImporterProcess()
     ui = self.ui
-    self.process.topoTextFilePath = unicode(ui.leToporobotText.text())
-    self.process.topoCoordFilePath = unicode(ui.leToporobotCoord.text())
-    self.process.mergeMappingFilePath = unicode(ui.leMergeMapping.text())
+    self.process.topoTextFilePath = str(ui.leToporobotText.text())
+    self.process.topoCoordFilePath = str(ui.leToporobotCoord.text())
+    self.process.mergeMappingFilePath = str(ui.leMergeMapping.text())
     self.process.demLayerBands = []
     if (ui.cbDemLayer.currentIndex() >= 0):
       rasterLayerBand = ui.cbDemLayer.itemData(ui.cbDemLayer.currentIndex())

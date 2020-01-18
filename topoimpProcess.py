@@ -19,9 +19,12 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 from qgis.core import *
 import qgis.utils
 from qgis.gui import QgsMessageBar
@@ -29,10 +32,10 @@ import sys
 import string
 import os.path
 import traceback
-import topoReader
-import topoDrawer
+from . import topoReader
+from . import topoDrawer
 
-class ToporobotImporterProcess:
+class ToporobotImporterProcess(object):
 
   def __init__(self):
 
@@ -164,7 +167,7 @@ class ToporobotImporterProcess:
 
     except Exception as e:
       exc_type, exc_value, exc_traceback = sys.exc_info()
-      self.error(u"Error "+e.__class__.__name__+u": "+unicode(e))
+      self.error(u"Error "+e.__class__.__name__+u": "+str(e))
       QgsMessageLog.logMessage(string.join(traceback.format_exception(exc_type, exc_value, exc_traceback), ""),
                                "Toporobot Importer", QgsMessageLog.WARNING)
 
@@ -248,20 +251,20 @@ class ToporobotImporterProcess:
 
 def getLayerFromDatapath(datapath):
     existingLayer = None
-    datapath = os.path.abspath(unicode(datapath))
+    datapath = os.path.abspath(str(datapath))
     if datapath[-4:].lower().endswith(".shp"):
       datapath2 = datapath[0:-4]
     else:
       datapath2 = datapath + ".shp"
-    for layer in QgsMapLayerRegistry.instance().mapLayers().values():
-      layerpath = os.path.abspath(unicode(layer.source()))
+    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+      layerpath = os.path.abspath(str(layer.source()))
       if layerpath == datapath or layerpath == datapath2:
         existingLayer = layer
         break
     return existingLayer
 
 
-class WriterWrapper:
+class WriterWrapper(object):
   """Writer as a Wrapper to detect Error"""
 
   def __init__(self, writer, outName):

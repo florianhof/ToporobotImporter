@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import fileinput
 import os
 import datetime
 import re
 import sys
 #from qgis.core import QgsPoint, QgsRaster # only for importGroundAlti
-from topoData import *;
+from .topoData import *;
 
 def readToporobot(toporobotFilePath, 
                     coordFilePath = None, 
@@ -37,7 +41,7 @@ def readToporobotText(filepath):
     file = open(filepath, 'rU')
     try:
       for line in file:
-        line = unicode(line, 'mac_roman') # Toporobot comes from Mac
+        line = str(line, 'mac_roman') # Toporobot comes from Mac
         if len(line) < 13:
           continue
         elif line[0] != ' ':
@@ -214,7 +218,7 @@ def readGroundAlti(topofile, demLayerBands):
 
     # code inspired from "Point Sampling Tool" by Borys Jurgiel
     from qgis.core import QgsPoint, QgsRaster
-    for serie in topofile.series.values():
+    for serie in list(topofile.series.values()):
       for station in serie.stations:
         if not station.hasCoord: continue
         for demLayerBand in demLayerBands:
@@ -228,7 +232,7 @@ def readGroundAlti(topofile, demLayerBands):
     topofile.hasGroundAlti = True
 
 
-class LayerBand:
+class LayerBand(object):
     def __init__(self, layer, bandnr, bandname):
       self.layer = layer
       self.bandnr = bandnr

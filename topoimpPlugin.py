@@ -19,18 +19,20 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from builtins import object
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 from qgis.core import *
 # Initialize Qt resources from file resources.py
-import resources_rc
+import .resources_rc
 # Import the code for the dialog
-from topoimpDialog import ToporobotImporterDialog
+from .topoimpDialog import ToporobotImporterDialog
 import os.path
 
 
-class ToporobotImporterPlugin:
+class ToporobotImporterPlugin(object):
 
     def __init__(self, iface):
         # Save reference to the QGIS interface

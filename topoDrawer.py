@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import math
 import re
-from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 from qgis.core import *
-from topoData import *;
+from .topoData import *;
 
 
 # drawers
 
-class TopoDrawer:
+class TopoDrawer(object):
 
 
   def wkbType(self): 
@@ -34,8 +37,8 @@ class StationsDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
-    for topofile in topofiles.values():
-      for serie in topofile.series.values():
+    for topofile in list(topofiles.values()):
+      for serie in list(topofile.series.values()):
         for station in serie.stations:
           if station.code.visible:
             outFeat = QgsFeature()
@@ -53,8 +56,8 @@ class AimsDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
-    for topofile in topofiles.values():
-      for serie in topofile.series.values():
+    for topofile in list(topofiles.values()):
+      for serie in list(topofile.series.values()):
         for station in serie.stations[1:]:
           if station.code.visible:
             prevStation = serie.stations[station.nr-1]
@@ -73,8 +76,8 @@ class AimsSurfaceDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
-    for topofile in topofiles.values():
-      for serie in topofile.series.values():
+    for topofile in list(topofiles.values()):
+      for serie in list(topofile.series.values()):
         for station in serie.stations[1:]:
           if station.code.visible:
             prevStation = serie.stations[station.nr-1]
@@ -96,8 +99,8 @@ class SeriesDrawer(TopoDrawer):
     return fieldsForSeries
 
   def draw(self, topofiles, writer):
-    for topofile in topofiles.values():
-      for serie in topofile.series.values():
+    for topofile in list(topofiles.values()):
+      for serie in list(topofile.series.values()):
         multiPolyLine = []
         polyLine = []
         prevProcessedStationNr = -1
@@ -129,8 +132,8 @@ class SeriesSurfaceDrawer(TopoDrawer):
     return fieldsForSeries
 
   def draw(self, topofiles, writer):
-    for topofile in topofiles.values():
-      for serie in topofile.series.values():
+    for topofile in list(topofiles.values()):
+      for serie in list(topofile.series.values()):
         multiPolygon = []
         polygon = []
         prevProcessedStationNr = -1
