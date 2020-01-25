@@ -1,0 +1,9 @@
+{
+  "ioPaths": [
+    ["*.ui", "%%FILENAME%%_ui.py"],
+    ["*.qrc", "%%FILENAME%%_rc.py"]
+  ],
+  "rcc_options": "",
+  "uic_options": "--from-imports",
+  "force": false
+}

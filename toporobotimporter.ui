@@ -64,7 +64,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leToporobotText"/>
+       <widget class="QgsFileWidget" name="leToporobotText"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseToporobotText">
@@ -97,7 +97,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leToporobotCoord"/>
+       <widget class="QgsFileWidget" name="leToporobotCoord"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseToporobotCoord">
@@ -130,7 +130,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leMergeMapping"/>
+       <widget class="QgsFileWidget" name="leMergeMapping"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseMergeMapping">
@@ -233,7 +233,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leOutPoints"/>
+       <widget class="QgsFileWidget" name="leOutPoints"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseOutPoints">
@@ -276,7 +276,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leOutAims"/>
+       <widget class="QgsFileWidget" name="leOutAims"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseOutAims">
@@ -319,7 +319,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leOutAimsSurface"/>
+       <widget class="QgsFileWidget" name="leOutAimsSurface"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseOutAimsSurface">
@@ -362,7 +362,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leOutSeries">
+       <widget class="QgsFileWidget" name="leOutSeries">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -409,7 +409,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileDropEdit" name="leOutSeriesBorder">
+       <widget class="QgsFileWidget" name="leOutSeriesBorder">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -494,8 +494,8 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QgsFileDropEdit</class>
-   <extends>QLineEdit</extends>
+   <class>QgsFileWidget</class>
+   <extends>QWidget</extends>
    <header>qgis/gui.h</header>
   </customwidget>
  </customwidgets>

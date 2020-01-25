@@ -23,11 +23,12 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from .ui_toporobotimporter import Ui_ToporobotImporter
-from qgis.core import *
-from qgis.gui import QgsGenericProjectionSelector
+from qgis.PyQt.QtCore import Qt, QRegExp, QFileInfo
+from qgis.PyQt.QtGui import QRegExpValidator, QDesktopServices
+from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QMessageBox
+from .toporobotimporter_ui import Ui_ToporobotImporter
+from qgis.core import QgsProject, QgsVectorLayer, QgsMapLayer
+from qgis.gui import QgsProjectionSelectionTreeWidget
 import qgis.utils
 import os
 import os.path
@@ -50,7 +51,7 @@ class ToporobotImporterDialog(QDialog):
     ui = self.ui
 
     # set validators where required
-    ui.leSRS.setValidator(QRegExpValidator(QRegExp("(^epsg:{1}\\s*\\d+)|(^\\+proj.*)", Qt.CaseInsensitive), ui.leSRS));
+    ui.leSRS.setValidator(QRegExpValidator(QRegExp("(^epsg:{1}\\s*\\d+)|(^\\+proj.*)", Qt.CaseInsensitive), ui.leSRS))
 
     # connect the buttons to actions
     ui.bBrowseToporobotText.clicked.connect(self.browseForInToporobotTextFileFunction(ui.leToporobotText))
@@ -78,12 +79,12 @@ class ToporobotImporterDialog(QDialog):
     for j in reversed(list(range(ui.cbDemLayer.count()))):
       ui.cbDemLayer.removeItem(j)
     ui.cbDemLayer.addItem('----------', None)
-    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for layer in list(QgsProject.instance().mapLayers().values()):
       if layer.type() == QgsMapLayer.RasterLayer:
         if layer.bandCount() == 1: # first the one-band images, so should be a DEM
             rasterLayerBand = topoReader.LayerBand(layer, 1, layer.bandName(1))
             ui.cbDemLayer.addItem(layer.name(), rasterLayerBand)
-    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for layer in list(QgsProject.instance().mapLayers().values()):
       if layer.type() == QgsMapLayer.RasterLayer:
         if layer.bandCount() > 1: # then the multi-bands images, just in case
           for j in range(layer.bandCount()):
@@ -129,7 +130,7 @@ class ToporobotImporterDialog(QDialog):
     return lambda: self.browseForOutShapefile(lineedit)
 
   def browseForSRS(self):
-    srsSelector = QgsGenericProjectionSelector(self)
+    srsSelector = QgsProjectionSelectionTreeWidget(self)
     srsSelector.setSelectedCrsName(self.ui.leSRS.text())
     if srsSelector.exec_():
       self.ui.leSRS.clear()
@@ -192,7 +193,7 @@ class ToporobotImporterDialog(QDialog):
       rasterLayerBand = ui.cbDemLayer.itemData(ui.cbDemLayer.currentIndex())
       if (rasterLayerBand):
         self.process.demLayerBands.append(rasterLayerBand)
-    self.process.outFilePathWithLayerNameAndDrawer = [];
+    self.process.outFilePathWithLayerNameAndDrawer = []
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
       if lineedit.text():
         self.process.outFilePathWithLayerNameAndDrawer.append((lineedit.text(), self.toLayerName(lineedit, label), drawer))

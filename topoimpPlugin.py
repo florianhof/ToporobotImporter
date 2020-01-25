@@ -22,11 +22,11 @@
 from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import object
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
-# Initialize Qt resources from file resources.py
-import .resources_rc
+from qgis.PyQt.QtCore import QCoreApplication, QTranslator, QSettings
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction
+# Initialize Qt resources from file resources.qrc via resources_rc.py 
+from . import resources_rc
 # Import the code for the dialog
 from .topoimpDialog import ToporobotImporterDialog
 import os.path
