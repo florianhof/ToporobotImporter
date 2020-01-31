@@ -132,7 +132,7 @@ class TopoStation (object):
   nr = property((lambda self: self._nr))
   serie = property((lambda self: self._serie))
   directionInRadian = property((lambda self: self.code.computeDirectionInRadian(self.direction)))
-  lengthInMeter = property((lambda self: self.code.computeLengthInMeter(self.length)))
+  distanceInMeter = property((lambda self: self.code.computeLengthInMeter(self.distance)))
   leftInMeter = property((lambda self: self.code.computeLengthInMeter(self.left)))
   rightInMeter = property((lambda self: self.code.computeLengthInMeter(self.right)))
   depth = property((lambda self: (self.coordZ - self.groundAlti) if self.groundAlti else None))

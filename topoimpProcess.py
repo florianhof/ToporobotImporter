@@ -23,11 +23,11 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import object
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import QReadWriteLock
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsVectorLayer, QgsVectorFileWriter
 import qgis.utils
-from qgis.gui import QgsMessageBar
 import sys
 import string
 import os.path
@@ -85,7 +85,7 @@ class ToporobotImporterProcess(object):
     self.progressBar.setMaximum(nbStepsOfProcessing)
     self.progressBar.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
     self.messageBarItem.layout().addWidget(self.progressBar)
-    iface.messageBar().pushWidget(self.messageBarItem, level=QgsMessageBar.INFO)
+    iface.messageBar().pushWidget(self.messageBarItem, level=Qgis.MessageLevel.Info)
     self.statusLock.unlock()
 
   def incStatusProgressValue(self):
@@ -99,9 +99,9 @@ class ToporobotImporterProcess(object):
     iface = qgis.utils.iface
     if self.messageBarItem:
       self.messageBarItem.setText(message)
-      self.messageBarItem.setLevel(iface.messageBar().CRITICAL)
+      self.messageBarItem.setLevel(Qgis.MessageLevel.Critical)
     else: # the error comes so early that the message bar not yet created is
-      iface.messageBar().pushMessage("Toporobot Importer", message, level=QgsMessageBar.CRITICAL)
+      iface.messageBar().pushMessage("Toporobot Importer", message, level=Qgis.MessageLevel.Critical)
 
 
   def run(self):
@@ -168,8 +168,8 @@ class ToporobotImporterProcess(object):
     except Exception as e:
       exc_type, exc_value, exc_traceback = sys.exc_info()
       self.error(u"Error "+e.__class__.__name__+u": "+str(e))
-      QgsMessageLog.logMessage(string.join(traceback.format_exception(exc_type, exc_value, exc_traceback), ""),
-                               "Toporobot Importer", QgsMessageLog.WARNING)
+      QgsMessageLog.logMessage("".join(traceback.format_exception(exc_type, exc_value, exc_traceback)),
+                               "Toporobot Importer", Qgis.MessageLevel.Warning)
 
 
   def draw(self, topofiles, drawer, outPath, layerName):
@@ -202,7 +202,7 @@ class ToporobotImporterProcess(object):
         if not layer.commitChanges():
           layer.rollBack()
           IOError("cannot save the layer "+layer.name())
-        QgsMapLayerRegistry.instance().addMapLayer(layer)
+        QgsProject.instance().addMapLayer(layer)
         #del layer
       else: # override or no existing file
         if existingFile:
@@ -256,7 +256,7 @@ def getLayerFromDatapath(datapath):
       datapath2 = datapath[0:-4]
     else:
       datapath2 = datapath + ".shp"
-    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for layer in list(QgsProject.instance().mapLayers().values()):
       layerpath = os.path.abspath(str(layer.source()))
       if layerpath == datapath or layerpath == datapath2:
         existingLayer = layer

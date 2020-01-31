@@ -148,23 +148,21 @@ class ToporobotImporterDialog(QDialog):
 
 
   def showHelp(self):
-    #qgis.utils.showPluginHelp() # doesn't work :-(
-    help_file = "file:///"+ qgis.utils.pluginDirectory('ToporobotImporter') + "/help/index.html"
-    QDesktopServices.openUrl(QUrl(help_file))
+    qgis.utils.showPluginHelp(filename="help/index")
 
 
 
   def validateInputs(self):
     errorMsgs = []
     ui = self.ui
-    if   ui.leToporobotText.text() == "":
+    if   ui.leToporobotText.filePath() == "":
       errorMsgs.append(u"The Toporobot .Text file has to be filled")
-    if ui.leToporobotCoord.text() == "":
+    if ui.leToporobotCoord.filePath() == "":
       errorMsgs.append(u"The Toporobot .Coord file has to be filled")
     nbOutFiles = 0
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
-      if lineedit.text():
-        outPath = str(lineedit.text())
+      if lineedit.filePath():
+        outPath = str(lineedit.filePath())
         nbOutFiles += 1
         existingLayer = getLayerFromDatapath(outPath)
         if (not existingLayer) and ui.rbAppend.isChecked() and os.path.exists(outPath):
@@ -185,9 +183,9 @@ class ToporobotImporterDialog(QDialog):
   def defineProcess(self):
     self.process = ToporobotImporterProcess()
     ui = self.ui
-    self.process.topoTextFilePath = str(ui.leToporobotText.text())
-    self.process.topoCoordFilePath = str(ui.leToporobotCoord.text())
-    self.process.mergeMappingFilePath = str(ui.leMergeMapping.text())
+    self.process.topoTextFilePath = str(ui.leToporobotText.filePath())
+    self.process.topoCoordFilePath = str(ui.leToporobotCoord.filePath())
+    self.process.mergeMappingFilePath = str(ui.leMergeMapping.filePath())
     self.process.demLayerBands = []
     if (ui.cbDemLayer.currentIndex() >= 0):
       rasterLayerBand = ui.cbDemLayer.itemData(ui.cbDemLayer.currentIndex())
@@ -195,14 +193,14 @@ class ToporobotImporterDialog(QDialog):
         self.process.demLayerBands.append(rasterLayerBand)
     self.process.outFilePathWithLayerNameAndDrawer = []
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
-      if lineedit.text():
-        self.process.outFilePathWithLayerNameAndDrawer.append((lineedit.text(), self.toLayerName(lineedit, label), drawer))
+      if lineedit.filePath():
+        self.process.outFilePathWithLayerNameAndDrawer.append((lineedit.filePath(), self.toLayerName(lineedit, label), drawer))
     self.process.coordRefSystemAsText = ui.leSRS.text()
     self.process.shouldOverride = ui.rbOverride.isChecked()
     self.process.shouldShowLayer = ui.cbDisplayInQgis.isChecked()
 
 
   def toLayerName(self, lineeditpath, label):
-    return os.path.splitext(os.path.basename(lineeditpath.text()))[0] #+ " - " + label.text()
+    return os.path.splitext(os.path.basename(lineeditpath.filePath()))[0] #+ " - " + label.text()
 
 

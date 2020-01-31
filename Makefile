@@ -20,7 +20,7 @@
 # CONFIGURATION
 PLUGIN_UPLOAD = $(CURDIR)/plugin_upload.py
 
-QGISDIR=.qgis2
+QGISDIR=Library/Application\ Support/QGIS/QGIS3/profiles/default
 
 # Makefile for a PyQGIS plugin 
 
@@ -35,9 +35,9 @@ PLUGINNAME = ToporobotImporter
 
 PY_FILES = __init__.py topoimpPlugin.py topoimpDialog.py topoimpProcess.py topoData.py topoReader.py topoDrawer.py
 
-EXTRAS = images/icon.png images/toporobot.png metadata.txt
+EXTRAS = images/icon.png images/toporobot.png metadata.txt extras
 
-UI_FILES = toporobotimporter.py
+UI_FILES = toporobotimporter_ui.py
 
 RESOURCE_FILES = resources_rc.py
 
@@ -46,11 +46,12 @@ HELP = help
 default: compile
 
 compile: $(UI_FILES) $(RESOURCE_FILES)
+	mkdir -p i18n
 
 %_rc.py : %.qrc
 	pyrcc5 -o $*_rc.py  $<
 
-%.py : %.ui
+%_ui.py : %.ui
 	pyuic5 -o $@ $<
 
 %.qm : %.ts
@@ -64,14 +65,15 @@ deploy: compile doc transcompile
 	cp -vf $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	cp -vfr $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vfr $(HELP)/* $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
+	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
 
 # The dclean target removes compiled python files from plugin directory
 # also delets any .svn entry
 dclean:
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
+	rm -r $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/__pycache__
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".svn" -prune -exec rm -Rf {} \;
 
 # The derase deletes deployed plugin

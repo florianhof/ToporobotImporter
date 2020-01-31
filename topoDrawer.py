@@ -5,8 +5,9 @@ from builtins import str
 from builtins import object
 import math
 import re
-from qgis.PyQt.QtCore import *
-from qgis.core import *
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtGui import QVector2D, QVector3D
+from qgis.core import Qgis, QgsFeature, QgsGeometry, QgsWkbTypes, QgsPoint, QgsField, QgsFields
 from .topoData import *;
 
 
@@ -31,7 +32,7 @@ class TopoDrawer(object):
 class StationsDrawer(TopoDrawer):
 
   def wkbType(self): 
-    return QGis.WKBPoint
+    return QgsWkbTypes.Point
 
   def fields(self): 
     return fieldsForStations
@@ -50,7 +51,7 @@ class StationsDrawer(TopoDrawer):
 class AimsDrawer(TopoDrawer):
 
   def wkbType(self): 
-    return QGis.WKBLineString
+    return QgsWkbTypes.LineString
 
   def fields(self): 
     return fieldsForStations
@@ -70,7 +71,7 @@ class AimsDrawer(TopoDrawer):
 class AimsSurfaceDrawer(TopoDrawer):
 
   def wkbType(self): 
-    return QGis.WKBPolygon
+    return QgsWkbTypes.Polygon
 
   def fields(self): 
     return fieldsForStations
@@ -93,7 +94,7 @@ class AimsSurfaceDrawer(TopoDrawer):
 class SeriesDrawer(TopoDrawer):
 
   def wkbType(self): 
-    return QGis.WKBMultiLineString
+    return QgsWkbTypes.MultiLineString
 
   def fields(self): 
     return fieldsForSeries
@@ -126,7 +127,7 @@ class SeriesDrawer(TopoDrawer):
 class SeriesSurfaceDrawer(TopoDrawer):
 
   def wkbType(self):
-    return QGis.WKBMultiPolygon
+    return QgsWkbTypes.MultiPolygon
 
   def fields(self):
     return fieldsForSeries
