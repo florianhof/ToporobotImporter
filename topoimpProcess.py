@@ -19,11 +19,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import absolute_import
 
 from builtins import str
 from builtins import object
-from qgis.PyQt.QtCore import QReadWriteLock
+from qgis.PyQt.QtCore import Qt, QCoreApplication, QReadWriteLock
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QProgressBar
 from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsVectorLayer, QgsVectorFileWriter

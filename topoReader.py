@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-from __future__ import absolute_import
 from builtins import str
 from builtins import object
 import fileinput
@@ -10,7 +8,7 @@ import datetime
 import re
 import sys
 #from qgis.core import QgsPoint, QgsRaster # only for importGroundAlti
-from .topoData import *;
+from .topoData import * # remove dot for running tests :-(
 
 def readToporobot(toporobotFilePath, 
                     coordFilePath = None, 
@@ -37,11 +35,8 @@ def readToporobotText(filepath):
     topofile.name = os.path.basename(filepath)
     topofile.caveName = toporobotFilenamePattern.match(topofile.name).group(1)
 
-    #with open(filepath, 'rU') as file:
-    file = open(filepath, 'rU')
-    try:
+    with open(filepath, 'rU', encoding="mac_roman") as file: # Toporobot comes from Mac
       for line in file:
-        line = str(line, 'mac_roman') # Toporobot comes from Mac
         if len(line) < 13:
           continue
         elif line[0] != ' ':
@@ -99,8 +94,6 @@ def readToporobotText(filepath):
           station.trip = topofile.trips[int(line[20:24])]
           station.code = topofile.codes[int(line[12:16])]
         
-    finally:
-      file.close()
     return topofile
 
 def getComputeLengthInMeter(code):
@@ -110,7 +103,7 @@ def getComputeLengthInMeter(code):
     elif lengthUnit == 8 or lengthUnit == 7:
         return (lambda length: length * 0.3048)
     else:
-        raise ValueError("unknown length unit '"+str(directionUnit)+"' for code "+str(code.nr))
+        raise ValueError("unknown length unit '"+str(code.directionUnit)+"' for code "+str(code.nr))
 
 revolution = 2.0 * math.pi
 half = math.pi
@@ -126,14 +119,12 @@ def getComputeDirectionInRadian(code):
     elif directionUnit > 340 and directionUnit <= 350:
         return (lambda direction: (revolution * direction / 360 + half) % revolution)
     else:
-        raise ValueError("unknown directionUnit '"+str(directionUnit)+"' for code "+str(code.nr))
+        raise ValueError("unknown direction unit '"+str(code.directionUnit)+"' for code "+str(code.nr))
 
 
 def readToporobotCoord(filepath, topofile):
 
-    #with open(filepath, 'rU') as file:
-    file = open(filepath, 'rU')
-    try:
+    with open(filepath, 'rU') as file:
       stationNb = -1
       serie = None
       for line in file:
@@ -155,17 +146,13 @@ def readToporobotCoord(filepath, topofile):
         else:
           continue
       topofile.hasCoord = True
-    finally:
-      file.close()
     return topofile
 
 
 def readMergeMapping(filepathMerged, topofileMerged):
 
     topofiles = {}
-    #with open(filepathMerged, 'rU') as file:
-    file = open(filepathMerged, 'rU')
-    try:
+    with open(filepathMerged, 'rU') as file:
       hline = file.readline() # get header line
       if   hline.count(';') >= 2: fieldSep = ';'
       elif hline.count("\t") >= 2: fieldSep = "\t"
@@ -209,8 +196,6 @@ def readMergeMapping(filepathMerged, topofileMerged):
           topofileMerged.series[nrMerged].nrOrig = nrOrig
           topofileMerged.series[nrMerged].topofile = topofile
       topofileMerged.unmerged = 1
-    finally:
-      file.close()
     return topofiles
 
 

@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  ToporobotImporter
-                                 A QGIS plugin
+                                 A QGIS plugin to
  Imports Cave galleries from Toporobot 
                              -------------------
         begin                : 2014-01-04
@@ -20,7 +20,6 @@
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
-from __future__ import absolute_import
 
 def classFactory(iface):
     # load ToporobotImporter class from file ToporobotImporter

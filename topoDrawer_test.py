@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
 import unittest
-from . import topoDrawer
+import topoDrawer
 import math
 
 quarter = math.pi / 2.0 # == 100 grad
 
-class TestTopoDrawer(unittest.TestCase):
+class TopoDrawerTestCase(unittest.TestCase):
 
     def test_getMeanDir(self):
         self.assertEqual(topoDrawer.getMeanDir(None, None), None)

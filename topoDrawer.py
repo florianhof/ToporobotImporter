@@ -8,7 +8,7 @@ import re
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QVector2D, QVector3D
 from qgis.core import Qgis, QgsFeature, QgsGeometry, QgsWkbTypes, QgsPoint, QgsField, QgsFields
-from .topoData import *;
+#from .topoData import *;
 
 
 # drawers
