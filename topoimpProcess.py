@@ -25,10 +25,9 @@ from builtins import object
 from qgis.PyQt.QtCore import Qt, QCoreApplication, QReadWriteLock
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QProgressBar
-from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsVectorLayer, QgsVectorFileWriter
+from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsVectorLayer, QgsVectorFileWriter, QgsCoordinateReferenceSystem
 import qgis.utils
 import sys
-import string
 import os.path
 import traceback
 from . import topoReader
@@ -68,7 +67,9 @@ class ToporobotImporterProcess(object):
     if self.messageBarItem:
       self.messageBarItem.setText(text)
     else:
-      iface.mainWindow().statusBar().showMessage(text)
+      iface = qgis.utils.iface
+      if iface is not None:
+        iface.mainWindow().statusBar().showMessage(text)
     self.statusText = text
     self.statusLock.unlock()
     QCoreApplication.processEvents()
@@ -78,19 +79,21 @@ class ToporobotImporterProcess(object):
     self.statusProgressMax = nbStepsOfProcessing
     self.statusProgressValue = 0
     iface = qgis.utils.iface
-    self.messageBarItem = iface.messageBar().createMessage("Start importing")
-    self.messageBarItem.setIcon(QIcon(":/plugins/toporobotimporter/images/icon.png"))
-    self.progressBar = QProgressBar()
-    self.progressBar.setMaximum(nbStepsOfProcessing)
-    self.progressBar.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
-    self.messageBarItem.layout().addWidget(self.progressBar)
-    iface.messageBar().pushWidget(self.messageBarItem, level=Qgis.MessageLevel.Info)
+    if iface is not None:
+      self.messageBarItem = iface.messageBar().createMessage("Start importing")
+      self.messageBarItem.setIcon(QIcon(":/plugins/toporobotimporter/images/icon.png"))
+      self.progressBar = QProgressBar()
+      self.progressBar.setMaximum(nbStepsOfProcessing)
+      self.progressBar.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
+      self.messageBarItem.layout().addWidget(self.progressBar)
+      iface.messageBar().pushWidget(self.messageBarItem, level=Qgis.MessageLevel.Info)
     self.statusLock.unlock()
 
   def incStatusProgressValue(self):
     self.statusLock.lockForWrite()
     self.statusProgressValue += 1
-    self.progressBar.setValue(self.statusProgressValue)
+    if self.progressBar:
+      self.progressBar.setValue(self.statusProgressValue)
     self.statusLock.unlock()
     QCoreApplication.processEvents()
 
@@ -154,7 +157,7 @@ class ToporobotImporterProcess(object):
       if self.coordRefSystemAsText:
         self.srs = QgsCoordinateReferenceSystem(self.coordRefSystemAsText)
       else:
-        self.srs = None
+        self.srs = QgsCoordinateReferenceSystem()
 
       self.setStatusText(u"Writing the outputs")
 
@@ -166,9 +169,12 @@ class ToporobotImporterProcess(object):
 
     except Exception as e:
       exc_type, exc_value, exc_traceback = sys.exc_info()
-      self.error(u"Error "+e.__class__.__name__+u": "+str(e))
-      QgsMessageLog.logMessage("".join(traceback.format_exception(exc_type, exc_value, exc_traceback)),
-                               "Toporobot Importer", Qgis.MessageLevel.Warning)
+      if qgis.utils.iface is None:
+          raise e
+      else:
+        self.error(u"Error "+e.__class__.__name__+u": "+str(e))
+        QgsMessageLog.logMessage("".join(traceback.format_exception(exc_type, exc_value, exc_traceback)),
+                                 "Toporobot Importer", Qgis.MessageLevel.Warning)
 
 
   def draw(self, topofiles, drawer, outPath, layerName):
@@ -266,11 +272,13 @@ def getLayerFromDatapath(datapath):
 class WriterWrapper(object):
   """Writer as a Wrapper to detect Error"""
 
+  outName = None
+  
   def __init__(self, writer, outName):
     self.writer = writer
     self.outName = outName
 
   def addFeature(self, feature):
     if not self.writer.addFeature(feature):
-      raise IOError("cannot write the feature to "+outName)
+      raise IOError("cannot write the feature to "+self.outName)
 

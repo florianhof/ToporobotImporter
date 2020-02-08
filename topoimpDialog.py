@@ -200,6 +200,10 @@ class ToporobotImporterDialog(QDialog):
     self.process.shouldShowLayer = ui.cbDisplayInQgis.isChecked()
 
 
+  def run(self):
+    self.process.run()
+
+
   def toLayerName(self, lineeditpath, label):
     return os.path.splitext(os.path.basename(lineeditpath.filePath()))[0] #+ " - " + label.text()
 

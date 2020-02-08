@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-import topoReader
-import math
-from topoData import *;
+import sys, os
+packageFolderPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(1, os.path.dirname(packageFolderPath)) # one above to see it as a package
+from ToporobotImporter import topoData, topoReader
 
-quarter = math.pi / 2.0 # == 100 grad
+import unittest
+import math
+
+quarter = math.pi / 2.0 # == 100 grades
+
+def extraFile(filename):
+    return os.path.join(packageFolderPath, 'extras', filename)
 
 class TopoReaderTestCase(unittest.TestCase):
 
     def getComputeDirectionInRadian(self, directionUnit):
-        code = TopoCode(1)
+        code = topoData.TopoCode(1)
         code.directionUnit = directionUnit
         return topoReader.getComputeDirectionInRadian(code)
 
@@ -40,11 +46,11 @@ class TopoReaderTestCase(unittest.TestCase):
         self.assertEqual(computeDirectionInRadian(270), quarter)
 
     def test_getComputeDirectionInRadian_FromUnknownUnit(self):
-        with self.assertRaisesRegexp(ValueError, "'1'"):
+        with self.assertRaisesRegex(ValueError, "'1'"):
             self.getComputeDirectionInRadian(1)
 
     def getComputeLengthInMeter(self, directionUnit):
-        code = TopoCode(1)
+        code = topoData.TopoCode(1)
         code.directionUnit = directionUnit
         return topoReader.getComputeLengthInMeter(code)
 
@@ -68,21 +74,25 @@ class TopoReaderTestCase(unittest.TestCase):
         self.assertEqual(computeLengthInMeter(0.5), 0.1524)
 
     def test_getComputeLengthInMeter_FromUnknownUnit(self):
-        with self.assertRaisesRegexp(ValueError, "'3'"):
+        with self.assertRaisesRegex(ValueError, "'3'"):
             self.getComputeLengthInMeter(3)
 
     def test_readToporobot_Text(self):
-        topofiles = topoReader.readToporobot('extras/CaveMerged.Text')
+        topofiles = topoReader.readToporobot(extraFile('CaveMerged.Text'))
         self.assertEqual(topofiles['CaveMerged.Text'].series[6].name, 'MéANDRE')
 
     def test_readToporobot_TextAndCoord(self):
-        topoReader.readToporobot('extras/CaveMerged.Text', 
-                                 coordFilePath = 'extras/CaveMerged.Coord')
+        topoReader.readToporobot(extraFile('CaveMerged.Text'), 
+                                 coordFilePath = extraFile('CaveMerged.Coord'))
 
     def test_readToporobot_TextAndMerge(self):
-        topoReader.readToporobot('extras/CaveMerged.Text', 
-                                 mergeFilePath = 'extras/CaveMerged-MergeInfo.csv')
+        topoReader.readToporobot(extraFile('CaveMerged.Text'), 
+                                 mergeFilePath = extraFile('CaveMerged-MergeInfo.csv'))
 
+    def test_readGroundAlti_Empty(self):
+        topofile = topoData.TopoFile()
+        topoReader.readGroundAlti(topofile, {})
+        self.assertEqual(topofile.hasGroundAlti, True)
 
 if __name__ == '__main__':
     unittest.main()

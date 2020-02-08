@@ -2,13 +2,12 @@
 
 from builtins import str
 from builtins import object
-import fileinput
 import os
-import datetime
 import re
 import sys
+import math
 #from qgis.core import QgsPoint, QgsRaster # only for importGroundAlti
-from .topoData import * # remove dot for running tests :-(
+from .topoData import TopoFile, TopoEntry, TopoTrip, TopoCode, TopoSerie, TopoStation
 
 def readToporobot(toporobotFilePath, 
                     coordFilePath = None, 
@@ -35,7 +34,7 @@ def readToporobotText(filepath):
     topofile.name = os.path.basename(filepath)
     topofile.caveName = toporobotFilenamePattern.match(topofile.name).group(1)
 
-    with open(filepath, 'rU', encoding="mac_roman") as file: # Toporobot comes from Mac
+    with open(filepath, 'r', encoding="mac_roman") as file: # Toporobot comes from Mac
       for line in file:
         if len(line) < 13:
           continue
@@ -124,7 +123,7 @@ def getComputeDirectionInRadian(code):
 
 def readToporobotCoord(filepath, topofile):
 
-    with open(filepath, 'rU') as file:
+    with open(filepath, 'r') as file:
       stationNb = -1
       serie = None
       for line in file:
@@ -152,7 +151,7 @@ def readToporobotCoord(filepath, topofile):
 def readMergeMapping(filepathMerged, topofileMerged):
 
     topofiles = {}
-    with open(filepathMerged, 'rU') as file:
+    with open(filepathMerged, 'r') as file:
       hline = file.readline() # get header line
       if   hline.count(';') >= 2: fieldSep = ';'
       elif hline.count("\t") >= 2: fieldSep = "\t"

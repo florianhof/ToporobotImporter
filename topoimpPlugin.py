@@ -81,5 +81,5 @@ class ToporobotImporterPlugin(object):
         # See if OK was pressed
         if result == 1:
             # do something useful
-            self.dlg.process.run() # in the same thread, otherwise there are problems
+            self.dlg.run() # in the same thread, otherwise there are problems
 

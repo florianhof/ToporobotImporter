@@ -22,6 +22,8 @@ PLUGIN_UPLOAD = $(CURDIR)/plugin_upload.py
 
 QGISDIR=Library/Application\ Support/QGIS/QGIS3/profiles/default
 
+PYQGIS=/Applications/QGIS3.10.app/Contents/Frameworks/Python.framework/Versions/3.7/bin/python3.7
+
 # Makefile for a PyQGIS plugin 
 
 # translation
@@ -57,6 +59,9 @@ compile: $(UI_FILES) $(RESOURCE_FILES)
 %.qm : %.ts
 	lrelease $<
 
+test: compile
+	$(PYQGIS) -m unittest discover -s tests/ -p "*test.py" -v
+
 # The deploy  target only works on unix like operating system where
 # the Python plugin directory is located at:
 # $HOME/$(QGISDIR)/python/plugins
@@ -67,13 +72,13 @@ deploy: compile doc transcompile
 	cp -vf $(RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
+	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/
 
 # The dclean target removes compiled python files from plugin directory
 # also delets any .svn entry
 dclean:
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
-	rm -r $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/__pycache__
+	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "__pycache__" -delete
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".svn" -prune -exec rm -Rf {} \;
 
 # The derase deletes deployed plugin

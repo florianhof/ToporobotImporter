@@ -4,11 +4,9 @@ from __future__ import absolute_import
 from builtins import str
 from builtins import object
 import math
-import re
 from qgis.PyQt.QtCore import QVariant
-from qgis.PyQt.QtGui import QVector2D, QVector3D
-from qgis.core import Qgis, QgsFeature, QgsGeometry, QgsWkbTypes, QgsPoint, QgsField, QgsFields
-#from .topoData import *;
+from qgis.core import QgsFeature, QgsGeometry, QgsWkbTypes, QgsPointXY, QgsField, QgsFields
+from . import topoData
 
 
 # drawers
@@ -38,12 +36,12 @@ class StationsDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
-    for topofile in list(topofiles.values()):
-      for serie in list(topofile.series.values()):
+    for topofile in topofiles.values():
+      for serie in topofile.series.values():
         for station in serie.stations:
           if station.code.visible:
             outFeat = QgsFeature()
-            outFeat.setGeometry(QgsGeometry.fromPoint(toQgsPoint(station)))
+            outFeat.setGeometry(QgsGeometry.fromPointXY(toQgsPoint(station)))
             addStationFields(outFeat, station)
             writer.addFeature(outFeat)
 
@@ -57,13 +55,14 @@ class AimsDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
-    for topofile in list(topofiles.values()):
-      for serie in list(topofile.series.values()):
+    for topofile in topofiles.values():
+      for serie in topofile.series.values():
         for station in serie.stations[1:]:
           if station.code.visible:
             prevStation = serie.stations[station.nr-1]
             outFeat = QgsFeature()
-            outFeat.setGeometry(QgsGeometry.fromPolyline([toQgsPoint(prevStation), toQgsPoint(station)]))
+            outFeat.setGeometry(QgsGeometry.fromPolylineXY([toQgsPoint(prevStation), toQgsPoint(station)]))
+            # use fromPolyline when other from* method are also available with QgsPoint, not QgsPointXY
             addStationFields(outFeat, station)
             writer.addFeature(outFeat)
 
@@ -77,8 +76,8 @@ class AimsSurfaceDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
-    for topofile in list(topofiles.values()):
-      for serie in list(topofile.series.values()):
+    for topofile in topofiles.values():
+      for serie in topofile.series.values():
         for station in serie.stations[1:]:
           if station.code.visible:
             prevStation = serie.stations[station.nr-1]
@@ -86,7 +85,7 @@ class AimsSurfaceDrawer(TopoDrawer):
             (leftCurrPt, rightCurrPt) = getLeftRightPoints(station)
             polyline = [leftPrevPt, rightPrevPt, rightCurrPt, leftCurrPt, leftPrevPt]
             outFeat = QgsFeature()
-            outFeat.setGeometry(QgsGeometry.fromPolygon([polyline]))
+            outFeat.setGeometry(QgsGeometry.fromPolygonXY([polyline]))
             addStationFields(outFeat, station)
             writer.addFeature(outFeat)
 
@@ -100,8 +99,8 @@ class SeriesDrawer(TopoDrawer):
     return fieldsForSeries
 
   def draw(self, topofiles, writer):
-    for topofile in list(topofiles.values()):
-      for serie in list(topofile.series.values()):
+    for topofile in topofiles.values():
+      for serie in topofile.series.values():
         multiPolyLine = []
         polyLine = []
         prevProcessedStationNr = -1
@@ -119,7 +118,7 @@ class SeriesDrawer(TopoDrawer):
           multiPolyLine.append(polyLine)
         if len(multiPolyLine) > 0:
           outFeat = QgsFeature()
-          outFeat.setGeometry(QgsGeometry.fromMultiPolyline(multiPolyLine))
+          outFeat.setGeometry(QgsGeometry.fromMultiPolylineXY(multiPolyLine))
           addSerieFields(outFeat, serie)
           writer.addFeature(outFeat)
 
@@ -133,8 +132,8 @@ class SeriesSurfaceDrawer(TopoDrawer):
     return fieldsForSeries
 
   def draw(self, topofiles, writer):
-    for topofile in list(topofiles.values()):
-      for serie in list(topofile.series.values()):
+    for topofile in topofiles.values():
+      for serie in topofile.series.values():
         multiPolygon = []
         polygon = []
         prevProcessedStationNr = -1
@@ -156,22 +155,20 @@ class SeriesSurfaceDrawer(TopoDrawer):
           multiPolygon.append([polygon]) # outer ring without any inner rings
         if len(multiPolygon) > 0:
           outFeat = QgsFeature()
-          outFeat.setGeometry(QgsGeometry.fromMultiPolygon(multiPolygon))
+          outFeat.setGeometry(QgsGeometry.fromMultiPolygonXY(multiPolygon))
           addSerieFields(outFeat, serie)
           writer.addFeature(outFeat)
 
 
 # helpers
 
-def toQgsPoint(point):
-    if isinstance(point, TopoStation):
-      return QgsPoint(point.coordX, point.coordY)
-    elif isinstance(point, QVector2D):
-      return QgsPoint(point.x(), point.y())
-    elif isinstance(point, QVector3D):
-      return QgsPoint(point.x(), point.y())
+def toQgsPoint(xOrPoint, yOrNone=None, z=None):
+    if yOrNone is not None:
+      return QgsPointXY(xOrPoint, yOrNone)
+    if isinstance(xOrPoint, topoData.TopoStation):
+      return toQgsPoint(xOrPoint.coordX, xOrPoint.coordY, xOrPoint.coordZ)
     else:
-      raise TypeError("cannot convert from type "+str(type(point))+" to QgsPoint")
+      raise TypeError("cannot convert from type "+str(type(xOrPoint))+" to QgsPointXY")
 
 def getLeftRightPoints(station):
     prevDir = None
@@ -187,16 +184,18 @@ def getLeftRightPoints(station):
     if leftDir < 0.0:
       leftDir += (2.0 * math.pi)
     leftVect = (math.sin(leftDir), math.cos(leftDir))
-    leftPt = QgsPoint(station.coordX + (leftVect[0] * station.leftInMeter),
-                      station.coordY + (leftVect[1] * station.leftInMeter))
-    rightPt = QgsPoint(station.coordX - (leftVect[0] * station.rightInMeter),
-                       station.coordY - (leftVect[1] * station.rightInMeter))
+    leftPt = toQgsPoint(station.coordX + (leftVect[0] * station.leftInMeter),
+                        station.coordY + (leftVect[1] * station.leftInMeter),
+                        station.coordZ)
+    rightPt = toQgsPoint(station.coordX - (leftVect[0] * station.rightInMeter),
+                         station.coordY - (leftVect[1] * station.rightInMeter),
+                         station.coordZ)
     return (leftPt, rightPt)
 
 def getMeanDir(prevDir, nextDir):
     if prevDir is None:
       if nextDir is None:
-        return None
+        meanDir = None
       else:
         meanDir = nextDir
     else:
