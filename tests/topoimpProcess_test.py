@@ -10,6 +10,10 @@ from ToporobotImporter.tests.topoReader_test import extraFile
 import unittest
 from qgis.core import QgsCoordinateReferenceSystem, QgsVectorLayer
 
+outfolderpath = os.path.join(packageFolderPath, "tmp")
+if not os.path.exists(outfolderpath):
+    os.makedirs(outfolderpath)
+
 class ToporobotImporterProcessTestCase(unittest.TestCase):
 
     def test_init(self):
@@ -17,9 +21,10 @@ class ToporobotImporterProcessTestCase(unittest.TestCase):
 
     def test_drawOnNewFile(self):
         process = topoimpProcess.ToporobotImporterProcess()
-        process.srs = QgsCoordinateReferenceSystem()
+        process.coordRefSystem = QgsCoordinateReferenceSystem()
         drawer = topoDrawer.AimsSurfaceDrawer()
-        process.drawOnNewFile(getSimpleTopoFiles(), drawer, "out.shp")
+        outFilePath = os.path.join(outfolderpath, "test_surface.shp")
+        process.drawOnNewFile(getSimpleTopoFiles(), drawer, outFilePath)
 
     def test_drawOnLayer(self):
         process = topoimpProcess.ToporobotImporterProcess()
@@ -31,6 +36,8 @@ class ToporobotImporterProcessTestCase(unittest.TestCase):
         process.topoTextFilePath = extraFile('CaveMerged.Text')
         process.topoCoordFilePath = extraFile('CaveMerged.Coord')
         process.mergeMappingFilePath = extraFile('CaveMerged-MergeInfo.csv')
+        process.outFilePathWithLayerNameAndDrawer.append(
+            (os.path.join(outfolderpath, "test_stations.shp"), "test stations", topoDrawer.StationsDrawer()))
         process.run()
 
 

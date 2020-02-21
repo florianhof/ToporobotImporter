@@ -54,7 +54,7 @@ compile: $(UI_FILES) $(RESOURCE_FILES)
 	pyrcc5 -o $*_rc.py  $<
 
 %_ui.py : %.ui
-	pyuic5 -o $@ $<
+	pyuic5 --import-from . -o $@ $<
 
 %.qm : %.ts
 	lrelease $<
@@ -120,6 +120,7 @@ transclean:
 
 clean:
 	rm $(UI_FILES) $(RESOURCE_FILES)
+	rm  -f tmp/*
 
 # build documentation with sphinx
 doc: 

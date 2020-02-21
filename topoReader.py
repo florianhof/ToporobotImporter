@@ -10,11 +10,12 @@ import math
 from .topoData import TopoFile, TopoEntry, TopoTrip, TopoCode, TopoSerie, TopoStation
 
 def readToporobot(toporobotFilePath, 
-                    coordFilePath = None, 
-                    mergeFilePath = None, 
-                    demLayerBands = None):
+                  coordFilePath = None, 
+                  mergeFilePath = None, 
+                  demLayerBands = None,
+                  encoding = 'mac_roman'):
 
-    topofile = readToporobotText(toporobotFilePath)
+    topofile = readToporobotText(toporobotFilePath, encoding)
     if coordFilePath:
       readToporobotCoord(coordFilePath, topofile)
     if demLayerBands:
@@ -27,14 +28,16 @@ def readToporobot(toporobotFilePath,
 
 toporobotFilenamePattern = re.compile(r"^(.+?)(_\d+)?(.Te?xt)?$", re.IGNORECASE);
 
-def readToporobotText(filepath):
+def readToporobotText(filepath, encoding):
     
     topofile = TopoFile()
     topofile.path = filepath
     topofile.name = os.path.basename(filepath)
     topofile.caveName = toporobotFilenamePattern.match(topofile.name).group(1)
+    if not encoding or encoding == '':
+        encoding =  'mac_roman' # Toporobot comes from Mac
 
-    with open(filepath, 'r', encoding="mac_roman") as file: # Toporobot comes from Mac
+    with open(filepath, 'r', encoding=encoding) as file: 
       for line in file:
         if len(line) < 13:
           continue
@@ -61,8 +64,8 @@ def readToporobotText(filepath):
           trip = TopoTrip(stationNb)
           trip.topofile = topofile
           trip.date = convDateFromTopo(line[25:33])
-          trip.speleometer = line[35:47]
-          trip.speleograph = line[49:61]
+          trip.speleometer = line[35:47].strip()
+          trip.speleograph = line[49:61].strip()
         elif serieNb == -1: # code
           code = TopoCode(stationNb)
           code.topofile = topofile
@@ -201,18 +204,14 @@ def readMergeMapping(filepathMerged, topofileMerged):
 def readGroundAlti(topofile, demLayerBands):
 
     # code inspired from "Point Sampling Tool" by Borys Jurgiel
-    from qgis.core import QgsPoint, QgsRaster
+    from qgis.core import QgsPointXY, QgsRaster
     for serie in list(topofile.series.values()):
       for station in serie.stations:
         if not station.hasCoord: continue
         for demLayerBand in demLayerBands:
-          value = demLayerBand.getValueAt(QgsPoint(station.coordX, station.coordY))
-          try:
-            station.groundAlti = float(value)
-            station.hasGroundAlti = True
-            continue # use the first value found
-          except (ValueError, TypeError):
-            pass # point is out of raster extent or with an undefined value
+          value, hasResult = demLayerBand.getValueAt(QgsPointXY(station.coordX, station.coordY))
+          station.hasGroundAlti = hasResult
+          station.groundAlti = float(value)
     topofile.hasGroundAlti = True
 
 
@@ -231,14 +230,12 @@ class LayerBand(object):
     def __hash__(self):
       return hash(self.layer) + (self.bandnr * 31)
     def __repr__(self):
-      return u'LayerBand(' + repr(self.layer) + ', ' + repr(self.bandnr) + ', \'' + self.bandname+ '\')'
+      return 'LayerBand(' + repr(self.layer) + ', ' + repr(self.bandnr) + ', \'' + self.bandname+ '\')'
     def getValueAt(self, point):
+      """Return (value, hasResult) at the given point of this layer."""
       from qgis.core import QgsRaster
-      values = self.layer.dataProvider().identify(
-                 point,
-                 QgsRaster.IdentifyFormatValue)
-      value = values.results()[self.bandnr]
-      return value # type is layer-specific
+      value, hasResult = self.layer.dataProvider().sample(point, self.bandnr)
+      return value, hasResult
 
 
 def convDateFromTopo(string):

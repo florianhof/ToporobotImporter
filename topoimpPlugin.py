@@ -57,17 +57,17 @@ class ToporobotImporterPlugin(object):
         # Create action that will start plugin configuration
         self.action = QAction(
             QIcon(":/plugins/toporobotimporter/images/icon.png"),
-            u"Toporobot Importer", self.iface.mainWindow())
+            "Toporobot Importer", self.iface.mainWindow())
         # connect the action to the run method
         self.action.triggered.connect(self.run)
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(u"&Import", self.action)
+        self.iface.addPluginToMenu("&Import", self.action)
 
     def unload(self):
         # Remove the plugin menu item and icon
-        self.iface.removePluginMenu(u"&Import", self.action)
+        self.iface.removePluginMenu("&Import", self.action)
         self.iface.removeToolBarIcon(self.action)
 
     # run method that performs all the real work

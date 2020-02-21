@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from builtins import object
-import math
 
 
 class TopoFile (object):

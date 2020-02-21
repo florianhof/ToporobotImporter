@@ -27,10 +27,9 @@ from qgis.PyQt.QtCore import Qt, QRegExp, QFileInfo
 from qgis.PyQt.QtGui import QRegExpValidator, QDesktopServices
 from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QMessageBox
 from .toporobotimporter_ui import Ui_ToporobotImporter
-from qgis.core import QgsProject, QgsVectorLayer, QgsMapLayer
-from qgis.gui import QgsProjectionSelectionTreeWidget
+from qgis.core import QgsProject, QgsVectorLayer, QgsMapLayer, QgsCoordinateReferenceSystem
+from qgis.gui import QgsFileWidget, QgsProjectionSelectionWidget
 import qgis.utils
-import os
 import os.path
 from .topoimpProcess import ToporobotImporterProcess, getLayerFromDatapath
 from . import topoReader
@@ -49,9 +48,19 @@ class ToporobotImporterDialog(QDialog):
     self.lastOutputDirectory = QgsProject.instance().homePath() or "."
     self.process = None
     ui = self.ui
+    
+    ui.leEncoding.insert('mac_roman') # Toporobot comes from Mac
 
-    # set validators where required
-    ui.leSRS.setValidator(QRegExpValidator(QRegExp("(^epsg:{1}\\s*\\d+)|(^\\+proj.*)", Qt.CaseInsensitive), ui.leSRS))
+    # unsuccessful trial to set file filter on QgsFileWidget
+    ui.leToporobotText.filter = "*.Text;;*.*"
+    ui.leToporobotText.dialogTitle = "Input Toporobot .Text file"
+    ui.leToporobotText.defaultRoot = self.lastInputDirectory
+    ui.leToporobotText.fileChanged.connect(self.updateLastInputDirectory)
+    ui.leToporobotCoord.filter = "Toporobot (*.Coord)"
+    ui.leToporobotCoord.lineEdit().filters = "Toporobot (*.Coord)"
+    ui.leMergeMapping.selectedFilter = "*.csv"
+    ui.leOutPoints.storageMode = QgsFileWidget.StorageMode.SaveFile
+    ui.leOutAims.storageMode = QgsFileWidget.SaveFile
 
     # connect the buttons to actions
     ui.bBrowseToporobotText.clicked.connect(self.browseForInToporobotTextFileFunction(ui.leToporobotText))
@@ -65,8 +74,8 @@ class ToporobotImporterDialog(QDialog):
       (ui.lbOutSeriesBorder, ui.leOutSeriesBorder, ui.bBrowseOutSeriesBorder, topoDrawer.SeriesSurfaceDrawer())]
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
       button.clicked.connect(self.browseForOutShapefileFunction(lineedit))
-    ui.bSRS.clicked.connect(self.browseForSRS)
     ui.buttonBox.helpRequested.connect(self.showHelp)
+    ui.leSRS.setOptionVisible(QgsProjectionSelectionWidget.CrsOption.CrsNotSet, True)
 
 
   def show(self):
@@ -94,47 +103,45 @@ class ToporobotImporterDialog(QDialog):
       ui.cbDemLayer.setCurrentIndex(ui.cbDemLayer.findText(currentLayerBand))
     else:
       ui.cbDemLayer.setCurrentIndex(0)
+    ui.leSRS.setCrs(QgsCoordinateReferenceSystem())
     self.repaint()
 
     # now really show
     super(ToporobotImporterDialog, self).show()
+    ui.leToporobotText.filter = "*.Text;;*.*"
+    ui.leMergeMapping.setSelectedFilter("*.csv")
+
 
   def browseForInToporobotTextFileFunction(self, lineedit):
-    return lambda: self.browseForInFile(lineedit, u"Input Toporobot .Text file", u"Toporobot (*.Text);;All (*.*)")
+    return lambda: self.browseForInFile(lineedit, "Input Toporobot .Text file", "Toporobot (*.Text);;All (*.*)")
 
   def browseForInToporobotCoordFileFunction(self, lineedit):
-    return lambda: self.browseForInFile(lineedit, u"Input Toporobot .Coord file", u"Toporobot (*.Coord);;All (*.*)")
+    return lambda: self.browseForInFile(lineedit, "Input Toporobot .Coord file", "Toporobot (*.Coord);;All (*.*)")
 
   def browseForInMergeMappingFileFunction(self, lineedit):
-    return lambda: self.browseForInFile(lineedit, u"Input Merge mapping file", u"Comma-separated values (*.csv);;All (*.*)")
+    return lambda: self.browseForInFile(lineedit, "Input Merge mapping file", "Comma-separated values (*.csv);;All (*.*)")
 
   def browseForInFile(self, lineedit, caption, selectedFilter):
     filename, __ = QFileDialog.getOpenFileName(self, caption, self.lastInputDirectory, selectedFilter)
     if filename:
       fileinfo = QFileInfo(filename)
-      lineedit.clear()
-      lineedit.insert(fileinfo.absoluteFilePath())
+      lineedit.setFilePath(fileinfo.absoluteFilePath())
       self.lastInputDirectory = fileinfo.absolutePath()
 
+  def updateLastInputDirectory(self, filepath):
+    self.lastInputDirectory = os.path.dirname(filepath)
+
   def browseForOutShapefile(self, lineedit):
-    filename, __ = QFileDialog.getSaveFileName(self, u"Output Shapefile", self.lastOutputDirectory, u"Shapefiles (*.shp)")
+    filename, __ = QFileDialog.getSaveFileName(self, "Output Shapefile", self.lastOutputDirectory, "Shapefiles (*.shp)")
     if filename:
       if not filename.lower().endswith(".shp"):
         filename = filename + ".shp"
       fileinfo = QFileInfo(filename)
-      lineedit.clear()
-      lineedit.insert(fileinfo.absoluteFilePath())
+      lineedit.setFilePath(fileinfo.absoluteFilePath())
       self.lastOutputDirectory = fileinfo.absolutePath()
 
   def browseForOutShapefileFunction(self, lineedit):
     return lambda: self.browseForOutShapefile(lineedit)
-
-  def browseForSRS(self):
-    srsSelector = QgsProjectionSelectionTreeWidget(self)
-    srsSelector.setSelectedCrsName(self.ui.leSRS.text())
-    if srsSelector.exec_():
-      self.ui.leSRS.clear()
-      self.ui.leSRS.insert(srsSelector.selectedProj4String())
 
 
   def done(self, resultCode):
@@ -156,9 +163,9 @@ class ToporobotImporterDialog(QDialog):
     errorMsgs = []
     ui = self.ui
     if   ui.leToporobotText.filePath() == "":
-      errorMsgs.append(u"The Toporobot .Text file has to be filled")
+      errorMsgs.append("The Toporobot .Text file has to be filled")
     if ui.leToporobotCoord.filePath() == "":
-      errorMsgs.append(u"The Toporobot .Coord file has to be filled")
+      errorMsgs.append("The Toporobot .Coord file has to be filled")
     nbOutFiles = 0
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
       if lineedit.filePath():
@@ -169,12 +176,12 @@ class ToporobotImporterDialog(QDialog):
           existingLayer = QgsVectorLayer(outPath, None, "ogr")
         if existingLayer:
           if existingLayer.wkbType() != drawer.wkbType():
-            errorMsgs.append(u"Cannot append to the file \""+os.path.basename(outPath)+u"\" because its type is not compatible")
+            errorMsgs.append("Cannot append to the file \""+os.path.basename(outPath)+"\" because its type is not compatible")
           del existingLayer
     if nbOutFiles == 0:
-      errorMsgs.append(u"No output shapefile has been filled")
+      errorMsgs.append("No output shapefile has been filled")
     if len(errorMsgs) > 0:
-      QMessageBox.information(self, self.windowTitle(), u"\n".join(errorMsgs))
+      QMessageBox.information(self, self.windowTitle(), "\n".join(errorMsgs))
       return False
     else:
       return True
@@ -186,6 +193,7 @@ class ToporobotImporterDialog(QDialog):
     self.process.topoTextFilePath = str(ui.leToporobotText.filePath())
     self.process.topoCoordFilePath = str(ui.leToporobotCoord.filePath())
     self.process.mergeMappingFilePath = str(ui.leMergeMapping.filePath())
+    self.process.encoding = ui.leEncoding.text()
     self.process.demLayerBands = []
     if (ui.cbDemLayer.currentIndex() >= 0):
       rasterLayerBand = ui.cbDemLayer.itemData(ui.cbDemLayer.currentIndex())
@@ -195,7 +203,7 @@ class ToporobotImporterDialog(QDialog):
     for (label, lineedit, button, drawer) in self.outShapeFileFormWidgets:
       if lineedit.filePath():
         self.process.outFilePathWithLayerNameAndDrawer.append((lineedit.filePath(), self.toLayerName(lineedit, label), drawer))
-    self.process.coordRefSystemAsText = ui.leSRS.text()
+    self.process.coordRefSystem = ui.leSRS.crs()
     self.process.shouldOverride = ui.rbOverride.isChecked()
     self.process.shouldShowLayer = ui.cbDisplayInQgis.isChecked()
 

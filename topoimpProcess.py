@@ -37,6 +37,17 @@ class ToporobotImporterProcess(object):
 
   def __init__(self):
 
+    # Work parameters
+    self.topoTextFilePath = None
+    self.topoCoordFilePath = None
+    self.mergeMappingFilePath = None
+    self.encoding = None
+    self.demLayerBands = []
+    self.outFilePathWithLayerNameAndDrawer = []
+    self.coordRefSystem = None
+    self.shouldOverride = False
+    self.shouldShowLayer = False
+
     # Status infos
     self.statusLock = QReadWriteLock()
     self.statusText = ''
@@ -44,16 +55,6 @@ class ToporobotImporterProcess(object):
     self.statusProgressMax = -1
     self.messageBarItem = None
     self.progressBar = None
-
-    # Work parameters
-    self.topoTextFilePath = None;
-    self.topoCoordFilePath = None;
-    self.mergeMappingFilePath = None;
-    self.demLayerBands = [];
-    self.outFilePathWithLayerNameAndDrawer = [];
-    self.coordRefSystemAsText = None;
-    self.shouldOverride = False;
-    self.shouldShowLayer = False;
 
 
   def getStatus(self):
@@ -125,54 +126,52 @@ class ToporobotImporterProcess(object):
 
       # read the input files
 
-      self.setStatusText(u"Reading the input Text file")
-      topofile = topoReader.readToporobotText(self.topoTextFilePath)
+      self.setStatusText("Reading the input Text file")
+      topofile = topoReader.readToporobotText(self.topoTextFilePath, self.encoding)
       self.incStatusProgressValue()
-      self.setStatusText(u"Textfile successfully readen")
+      self.setStatusText("Textfile successfully readen")
 
-      self.setStatusText(u"Reading the input Coord file")
+      self.setStatusText("Reading the input Coord file")
       topoReader.readToporobotCoord(self.topoCoordFilePath, topofile)
       self.incStatusProgressValue()
-      self.setStatusText(u"Coord file successfully readen")
+      self.setStatusText("Coord file successfully readen")
 
       if self.demLayerBands:
-        self.setStatusText(u"Reading the input DEM Layers")
+        self.setStatusText("Reading the input DEM Layers")
         topoReader.readGroundAlti(topofile, self.demLayerBands)
         self.incStatusProgressValue()
-        self.setStatusText(u"DEM Layers successfully readen")
+        self.setStatusText("DEM Layers successfully readen")
 
       if self.mergeMappingFilePath:
-        self.setStatusText(u"Reading the input Merge mapping file")
+        self.setStatusText("Reading the input Merge mapping file")
         topofiles = topoReader.readMergeMapping(self.mergeMappingFilePath, topofile)
         self.incStatusProgressValue()
-        self.setStatusText(u"Merge mapping file successfully readen")
+        self.setStatusText("Merge mapping file successfully readen")
       else:
         topofiles = {topofile.name: topofile}
 
-      self.setStatusText(u"Input files successfully readen")
+      self.setStatusText("Input files successfully readen")
 
       # write the output shapefiles
 
-      self.setStatusText(u"Writting the output files")
-      if self.coordRefSystemAsText:
-        self.srs = QgsCoordinateReferenceSystem(self.coordRefSystemAsText)
-      else:
-        self.srs = QgsCoordinateReferenceSystem()
+      self.setStatusText("Writting the output files")
+      if not self.coordRefSystem:
+        self.coordRefSystem = QgsCoordinateReferenceSystem()
 
-      self.setStatusText(u"Writing the outputs")
+      self.setStatusText("Writing the outputs")
 
       for (outFilePath, layerName, drawer) in self.outFilePathWithLayerNameAndDrawer:
         if not outFilePath: continue
         self.draw(topofiles, drawer, outFilePath, layerName)
 
-      self.setStatusText(u"Output files successfully written. Import is finished. ")
+      self.setStatusText("Output files successfully written. Import is finished. ")
 
     except Exception as e:
       exc_type, exc_value, exc_traceback = sys.exc_info()
       if qgis.utils.iface is None:
           raise e
       else:
-        self.error(u"Error "+e.__class__.__name__+u": "+str(e))
+        self.error("Error "+e.__class__.__name__+": "+str(e))
         QgsMessageLog.logMessage("".join(traceback.format_exception(exc_type, exc_value, exc_traceback)),
                                  "Toporobot Importer", Qgis.MessageLevel.Warning)
 
@@ -221,13 +220,13 @@ class ToporobotImporterProcess(object):
 
   def deleteShapeFile(self, outPath):
     if not QgsVectorFileWriter.deleteShapeFile(outPath):
-      raise IOError(u"cannot delete the shapefile \'"+os.path.basename(outPath)+u"\'")
+      raise IOError("cannot delete the shapefile \'"+os.path.basename(outPath)+"\'")
 
 
   def drawOnNewFile(self, topofiles, drawer, outPath):
-    writer = QgsVectorFileWriter(outPath, 'UTF-8', drawer.fields(), drawer.wkbType(), self.srs, "ESRI Shapefile")
+    writer = QgsVectorFileWriter(outPath, 'UTF-8', drawer.fields(), drawer.wkbType(), self.coordRefSystem, "ESRI Shapefile")
     if writer.hasError():
-      raise IOError(u"cannot create the shapefile \'"+os.path.basename(outPath)+u"\'")
+      raise IOError("cannot create the shapefile \'"+os.path.basename(outPath)+"\'")
     drawer.draw(topofiles, writer)
     #drawer.draw(topofiles, WriterWrapper(writer, os.path.basename(outPath)))
     del writer # flush and close the output file
@@ -249,9 +248,9 @@ class ToporobotImporterProcess(object):
     if not outPath[-4:].lower().endswith(".shp"):
       outPath = outPath + ".shp"
     if not iface.addVectorLayer(outPath, layerName, "ogr"):
-      QgsMessageLog.logMessage(u"cannot add the layer "+os.path.basename(outPath),
+      QgsMessageLog.logMessage("cannot add the layer "+os.path.basename(outPath),
                                "Toporobot Importer", QgsMessageLog.WARNING)
-      #QMessageBox.warning(self, self.windowTitle(), u"cannot add the layer "+os.path.basename(outPath))
+      #QMessageBox.warning(self, self.windowTitle(), "cannot add the layer "+os.path.basename(outPath))
 
 
 def getLayerFromDatapath(datapath):
