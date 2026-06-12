@@ -5,7 +5,7 @@
                                  A QGIS plugin
  Imports Cave galleries from Toporobot 
                              -------------------
-        begin                : 2014-01-04
+        begin                : 2014-01-04   modification 2026 AH line 26
         copyright            : (C) 2014 by Florian Hof
         email                : florian@speleo.ch
  ***************************************************************************/
@@ -23,5 +23,5 @@
 
 def classFactory(iface):
     # load ToporobotImporter class from file ToporobotImporter
-    from topoimpPlugin import ToporobotImporterPlugin
+    from .topoimpPlugin import ToporobotImporterPlugin
     return ToporobotImporterPlugin(iface)
