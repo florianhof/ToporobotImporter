@@ -2,10 +2,10 @@
 """
 /***************************************************************************
  ToporobotImporter
-                                 A QGIS plugin to
+                                 A QGIS plugin
  Imports Cave galleries from Toporobot 
                              -------------------
-        begin                : 2014-01-04
+        begin                : 2014-01-04   modification 2026 AH line 26
         copyright            : (C) 2014 by Florian Hof
         email                : florian@speleo.ch
  ***************************************************************************/

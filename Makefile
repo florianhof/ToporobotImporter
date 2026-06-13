@@ -20,108 +20,102 @@
 # CONFIGURATION
 PLUGIN_UPLOAD = $(CURDIR)/plugin_upload.py
 
-QGISDIR=Library/Application\ Support/QGIS/QGIS3/profiles/default
+# Chemin pour QGIS 3.x (remplace .qgis2 par .local/share/QGIS/QGIS3)
+QGISDIR = .local/share/QGIS/QGIS3
 
-PYQGIS=/Applications/QGIS3.10.app/Contents/Frameworks/Python.framework/Versions/3.7/bin/python3.7
+# Makefile pour un plugin PyQGIS moderne
 
-# Makefile for a PyQGIS plugin 
-
-# translation
+# Traductions (désactivées par défaut, à activer si nécessaire)
 SOURCES = __init__.py topoimpPlugin.py topoimpDialog.py topoimpProcess.py
-#TRANSLATIONS = i18n/toporobotimporter_en.ts
-TRANSLATIONS = 
+TRANSLATIONS =  # i18n/toporobotimporter_en.ts
 
-# global
-
+# Nom du plugin
 PLUGINNAME = ToporobotImporter
 
+# Fichiers Python
 PY_FILES = __init__.py topoimpPlugin.py topoimpDialog.py topoimpProcess.py topoData.py topoReader.py topoDrawer.py
 
-EXTRAS = images/icon.png images/toporobot.png metadata.txt extras
-
-UI_FILES = toporobotimporter_ui.py
-
+# Fichiers supplémentaires (icônes, métadonnées, etc.)
+EXTRAS = images/icon.png images/toporobot.png metadata.txt
+#IMAGES = images
+# Fichiers UI et ressources
+UI_FILES = ui_toporobotimporter.py
 RESOURCE_FILES = resources_rc.py
 
+# Répertoire d'aide
 HELP = help
 
+# Cible par défaut : compilation
 default: compile
 
+# Compilation des fichiers UI et ressources
 compile: $(UI_FILES) $(RESOURCE_FILES)
-	mkdir -p i18n
 
+# Génération du fichier .py à partir d'un fichier .qrc (pour les ressources)
 %_rc.py : %.qrc
-	pyrcc5 -o $*_rc.py  $<
+	pyrcc5 -o $*_rc.py $<  #??? Vérifier que pyrcc5 est installé (paquet python3-pyqt5)
 
-%_ui.py : %.ui
-	pyuic5 --import-from . -o $@ $<
+# Génération du fichier .py à partir d'un fichier .ui (pour l'interface)
+%.py : %.ui
+	pyuic5 -o $@ $<  #??? Vérifier que pyuic5 est installé (paquet python3-pyqt5)
 
+# Compilation des fichiers de traduction (.ts vers .qm)
 %.qm : %.ts
-	lrelease $<
+	lrelease $<  #??? Vérifier que lrelease est installé (paquet qttools5-dev ou qtchooser)
 
-test: compile
-	$(PYQGIS) -m unittest discover -s tests/ -p "*test.py" -v
-
-# The deploy  target only works on unix like operating system where
-# the Python plugin directory is located at:
-# $HOME/$(QGISDIR)/python/plugins
-deploy: compile doc transcompile
+# Déploiement du plugin (pour les systèmes Unix-like)
+deploy: compile
 	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vfr $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+#		mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/extras
+#		mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/images
+		mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
+	cp -vfr $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/extras
 	cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/
+	cp -vfr $(HELP)/* $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
 
-# The dclean target removes compiled python files from plugin directory
-# also delets any .svn entry
+# Nettoyage des fichiers compilés dans le répertoire de déploiement
 dclean:
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
-	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "__pycache__" -delete
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".svn" -prune -exec rm -Rf {} \;
 
-# The derase deletes deployed plugin
+# Suppression complète du plugin déployé
 derase:
 	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 
-# The zip target deploys the plugin and creates a zip file with the deployed
-# content. You can then upload the zip file on http://plugins.qgis.org
-zip: deploy dclean 
+# Création d'une archive zip du plugin déployé (pour upload sur plugins.qgis.org)
+zip: deploy dclean
 	rm -f $(PLUGINNAME).zip
-	cd $(HOME)/$(QGISDIR)/python/plugins; zip -9r "$(CURDIR)"/$(PLUGINNAME).zip $(PLUGINNAME)
+	cd $(HOME)/$(QGISDIR)/python/plugins && zip -9r "$(CURDIR)"/$(PLUGINNAME).zip $(PLUGINNAME)
 
-# Create a zip package of the plugin named $(PLUGINNAME).zip. 
-# This requires use of git (your plugin development directory must be a 
-# git repository).
-# To use, pass a valid commit or tag as follows:
-#   make package VERSION=Version_0.3.2
+# Création d'une archive zip du plugin depuis un commit git (si le dépôt est versionné)
 package: compile
-		rm -f $(PLUGINNAME).zip
-		git archive --prefix=$(PLUGINNAME)/ -o $(PLUGINNAME).zip $(VERSION)
-		echo "Created package: $(PLUGINNAME).zip"
+	rm -f $(PLUGINNAME).zip
+	git archive --prefix=$(PLUGINNAME)/ -o $(PLUGINNAME).zip $(VERSION)
+	echo "Archive créée : $(PLUGINNAME).zip"
 
+# Upload du plugin (nécessite le script plugin_upload.py)
 upload: zip
 	$(PLUGIN_UPLOAD) $(PLUGINNAME).zip
 
-# transup
-# update .ts translation files
+# Mise à jour des fichiers de traduction (.ts)
 transup:
-	pylupdate4 Makefile
+	pylupdate5 Makefile  #??? Vérifier que pylupdate5 est installé (paquet python3-pyqt5)
 
-# transcompile
-# compile translation files into .qm binary format
+# Compilation des fichiers de traduction (.ts vers .qm)
 transcompile: $(TRANSLATIONS:.ts=.qm)
 
-# transclean
-# deletes all .qm files
+# Nettoyage des fichiers de traduction compilés (.qm)
 transclean:
-	rm -f i18n/*.qm
+	rm -f images/*.qm
 
+# Nettoyage des fichiers générés (UI et ressources)
 clean:
-	rm $(UI_FILES) $(RESOURCE_FILES)
-	rm  -f tmp/*
+	rm -f $(UI_FILES) $(RESOURCE_FILES)
 
-# build documentation with sphinx
-doc: 
+# Génération de la documentation (si Sphinx est installé)
+doc:
 	#cd help; make html
+

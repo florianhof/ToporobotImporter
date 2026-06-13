@@ -7,14 +7,8 @@
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>576</height>
+    <height>547</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>ToporobotImporter</string>
@@ -23,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>540</y>
+     <y>510</y>
      <width>561</width>
      <height>31</height>
     </rect>
@@ -41,21 +35,15 @@
      <x>10</x>
      <y>0</y>
      <width>561</width>
-     <height>211</height>
+     <height>180</height>
     </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
    </property>
    <property name="title">
     <string>Input data</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutText">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="label">
         <property name="sizePolicy">
@@ -76,14 +64,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leToporobotText" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
+       <widget class="QgsFileDropEdit" name="leToporobotText"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseToporobotText">
@@ -95,7 +76,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutCoord">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLabel" name="label_2">
         <property name="sizePolicy">
@@ -116,14 +97,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leToporobotCoord" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
+       <widget class="QgsFileDropEdit" name="leToporobotCoord"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseToporobotCoord">
@@ -135,7 +109,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutMerge">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QLabel" name="label_4">
         <property name="sizePolicy">
@@ -156,7 +130,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leMergeMapping" native="true"/>
+       <widget class="QgsFileDropEdit" name="leMergeMapping"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseMergeMapping">
@@ -168,39 +142,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutEncoding">
-      <item>
-       <widget class="QLabel" name="label_7">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>150</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>150</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Encoding (optional)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="leEncoding"/>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutDem">
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
        <widget class="QLabel" name="label_5">
         <property name="sizePolicy">
@@ -237,13 +179,13 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>220</y>
+     <y>190</y>
      <width>561</width>
      <height>311</height>
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -253,21 +195,21 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QLabel" name="labelOutputHint">
+     <widget class="QLabel" name="label_9">
       <property name="text">
        <string>Define the shapefile(s) you want to export (and let the others empty)</string>
       </property>
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutPoints">
+     <layout class="QHBoxLayout" name="_2">
       <item>
        <widget class="QLabel" name="label_16">
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/plugins/toporobotimporter/images/schema_points.png</pixmap>
+         <pixmap>:/plugins/toporobotimporter/images/schema_points.png</pixmap>
         </property>
        </widget>
       </item>
@@ -286,19 +228,12 @@
          </size>
         </property>
         <property name="text">
-         <string>Stations as points</string>
+         <string>Stations as point</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leOutPoints" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
+       <widget class="QgsFileDropEdit" name="leOutPoints"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseOutPoints">
@@ -310,14 +245,14 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutAims">
+     <layout class="QHBoxLayout" name="_3">
       <item>
        <widget class="QLabel" name="label_17">
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/plugins/toporobotimporter/images/schema_lines.png</pixmap>
+         <pixmap>:/plugins/toporobotimporter/images/schema_lines.png</pixmap>
         </property>
        </widget>
       </item>
@@ -336,19 +271,12 @@
          </size>
         </property>
         <property name="text">
-         <string>Stations as lines</string>
+         <string>Stations as line</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leOutAims" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
+       <widget class="QgsFileDropEdit" name="leOutAims"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseOutAims">
@@ -360,14 +288,14 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutAimsSurface">
+     <layout class="QHBoxLayout" name="_4">
       <item>
        <widget class="QLabel" name="label_15">
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/plugins/toporobotimporter/images/schema_polygons.png</pixmap>
+         <pixmap>:/plugins/toporobotimporter/images/schema_polygons.png</pixmap>
         </property>
        </widget>
       </item>
@@ -386,19 +314,12 @@
          </size>
         </property>
         <property name="text">
-         <string>Stations as surfaces</string>
+         <string>Stations as surface</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leOutAimsSurface" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
+       <widget class="QgsFileDropEdit" name="leOutAimsSurface"/>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseOutAimsSurface">
@@ -410,14 +331,14 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutSeries">
+     <layout class="QHBoxLayout" name="_5">
       <item>
        <widget class="QLabel" name="label_13">
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/plugins/toporobotimporter/images/schema_line.png</pixmap>
+         <pixmap>:/plugins/toporobotimporter/images/schema_line.png</pixmap>
         </property>
        </widget>
       </item>
@@ -441,12 +362,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leOutSeries" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QgsFileDropEdit" name="leOutSeries">
+        <property name="enabled">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -460,14 +378,14 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutSeriesBorder">
+     <layout class="QHBoxLayout" name="_6">
       <item>
        <widget class="QLabel" name="label_14">
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/plugins/toporobotimporter/images/schema_polygon.png</pixmap>
+         <pixmap>:/plugins/toporobotimporter/images/schema_polygon.png</pixmap>
         </property>
        </widget>
       </item>
@@ -491,12 +409,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leOutSeriesBorder" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QgsFileDropEdit" name="leOutSeriesBorder">
+        <property name="enabled">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -519,18 +434,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsProjectionSelectionWidget" name="leSRS" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
+       <widget class="QLineEdit" name="leSRS"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="bSRS">
+        <property name="text">
+         <string>...</string>
         </property>
        </widget>
       </item>
@@ -585,19 +494,12 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QgsFileWidget</class>
-   <extends>QWidget</extends>
-   <header>qgis/gui.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QgsProjectionSelectionWidget</class>
-   <extends>QWidget</extends>
+   <class>QgsFileDropEdit</class>
+   <extends>QLineEdit</extends>
    <header>qgis/gui.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
