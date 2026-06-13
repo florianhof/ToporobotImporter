@@ -24,12 +24,12 @@ class ToporobotImporterProcessTestCase(unittest.TestCase):
         process.coordRefSystem = QgsCoordinateReferenceSystem()
         drawer = topoDrawer.AimsSurfaceDrawer()
         outFilePath = os.path.join(outfolderpath, "test_surface.shp")
-        process.drawOnNewFile(getSimpleTopoFiles(), drawer, outFilePath)
+        process.drawOnNewFile(getSimpleTopoFiles(), drawer, outFilePath, True)
 
     def test_drawOnLayer(self):
         process = topoimpProcess.ToporobotImporterProcess()
         drawer = topoDrawer.AimsSurfaceDrawer()
-        process.drawOnLayer(getSimpleTopoFiles(), drawer, QgsVectorLayer())
+        process.drawOnLayer(getSimpleTopoFiles(), drawer, QgsVectorLayer(), False)
 
     def test_run_SampleFiles(self):
         process = topoimpProcess.ToporobotImporterProcess()
