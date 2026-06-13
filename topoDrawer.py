@@ -36,6 +36,7 @@ class StationsDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
+    nbFeature = 0
     for topofile in topofiles.values():
       for serie in topofile.series.values():
         for station in serie.stations:
@@ -44,6 +45,8 @@ class StationsDrawer(TopoDrawer):
             outFeat.setGeometry(QgsGeometry.fromPointXY(toQgsPoint(station)))
             addStationFields(outFeat, station)
             writer.addFeature(outFeat)
+            nbFeature += 1
+    return nbFeature
 
 
 class AimsDrawer(TopoDrawer):
@@ -55,6 +58,7 @@ class AimsDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
+    nbFeature = 0
     for topofile in topofiles.values():
       for serie in topofile.series.values():
         for station in serie.stations[1:]:
@@ -65,6 +69,8 @@ class AimsDrawer(TopoDrawer):
             # use fromPolyline when other from* method are also available with QgsPoint, not QgsPointXY
             addStationFields(outFeat, station)
             writer.addFeature(outFeat)
+            nbFeature += 1
+    return nbFeature
 
 
 class AimsSurfaceDrawer(TopoDrawer):
@@ -76,6 +82,7 @@ class AimsSurfaceDrawer(TopoDrawer):
     return fieldsForStations
 
   def draw(self, topofiles, writer):
+    nbFeature = 0
     for topofile in topofiles.values():
       for serie in topofile.series.values():
         for station in serie.stations[1:]:
@@ -88,6 +95,8 @@ class AimsSurfaceDrawer(TopoDrawer):
             outFeat.setGeometry(QgsGeometry.fromPolygonXY([polyline]))
             addStationFields(outFeat, station)
             writer.addFeature(outFeat)
+            nbFeature += 1
+    return nbFeature
 
 
 class SeriesDrawer(TopoDrawer):
@@ -99,6 +108,7 @@ class SeriesDrawer(TopoDrawer):
     return fieldsForSeries
 
   def draw(self, topofiles, writer):
+    nbFeature = 0
     for topofile in topofiles.values():
       for serie in topofile.series.values():
         multiPolyLine = []
@@ -121,6 +131,8 @@ class SeriesDrawer(TopoDrawer):
           outFeat.setGeometry(QgsGeometry.fromMultiPolylineXY(multiPolyLine))
           addSerieFields(outFeat, serie)
           writer.addFeature(outFeat)
+          nbFeature += 1
+    return nbFeature
 
 
 class SeriesSurfaceDrawer(TopoDrawer):
@@ -132,6 +144,7 @@ class SeriesSurfaceDrawer(TopoDrawer):
     return fieldsForSeries
 
   def draw(self, topofiles, writer):
+    nbFeature = 0
     for topofile in topofiles.values():
       for serie in topofile.series.values():
         multiPolygon = []
@@ -158,6 +171,8 @@ class SeriesSurfaceDrawer(TopoDrawer):
           outFeat.setGeometry(QgsGeometry.fromMultiPolygonXY(multiPolygon))
           addSerieFields(outFeat, serie)
           writer.addFeature(outFeat)
+          nbFeature += 1
+    return nbFeature
 
 
 # helpers
@@ -230,7 +245,7 @@ fieldsForStations.append(QgsField('STN_GROUND', QVariant.Double, 'double' ,   7,
 fieldsForStations.append(QgsField('STN_DEPTH' , QVariant.Double, 'double' ,   8, 2, "depth of the cave's station compared to the ground"))
 fieldsForStations.append(QgsField('STN_DEP_TO', QVariant.Double, 'double' ,   8, 2, "depth of the cave's ceiling compared to the ground"))
 fieldsForStations.append(QgsField('STN_DEP_BO', QVariant.Double, 'double' ,   8, 2, "depth of the cave's floor compared to the ground"))
-fieldsForStations.append(QgsField('TRIP_DATE' , QVariant.String, 'varchar',   8, 0, "trip's date"))
+fieldsForStations.append(QgsField('TRIP_DATE' , QVariant.String, 'varchar',  10, 0, "trip's date"))
 fieldsForStations.append(QgsField('TRIP_SPMET', QVariant.String, 'varchar',  12, 0, "trip's speleometer"))
 fieldsForStations.append(QgsField('TRIP_SPGRA', QVariant.String, 'varchar',  12, 0, "trip's speleograph"))
 

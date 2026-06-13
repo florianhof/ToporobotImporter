@@ -64,6 +64,8 @@ class ToporobotImporterProcess(object):
     return result
 
   def setStatusText(self, text):
+    QgsMessageLog.logMessage(text, 
+      "Toporobot Importer", Qgis.MessageLevel.Info, False)
     self.statusLock.lockForWrite()
     if self.messageBarItem:
       self.messageBarItem.setText(text)
@@ -76,12 +78,14 @@ class ToporobotImporterProcess(object):
     QCoreApplication.processEvents()
 
   def initStatusProgress(self, nbStepsOfProcessing):
+    QgsMessageLog.logMessage("Starting importer", 
+      "Toporobot Importer", Qgis.MessageLevel.Info, False)
     self.statusLock.lockForWrite()
     self.statusProgressMax = nbStepsOfProcessing
     self.statusProgressValue = 0
     iface = qgis.utils.iface
     if iface is not None:
-      self.messageBarItem = iface.messageBar().createMessage("Start importing")
+      self.messageBarItem = iface.messageBar().createMessage("Start importing Toporobot format")
       self.messageBarItem.setIcon(QIcon(":/plugins/toporobotimporter/images/icon.png"))
       self.progressBar = QProgressBar()
       self.progressBar.setMaximum(nbStepsOfProcessing)
@@ -129,7 +133,7 @@ class ToporobotImporterProcess(object):
       self.setStatusText("Reading the input Text file")
       topofile = topoReader.readToporobotText(self.topoTextFilePath, self.encoding)
       self.incStatusProgressValue()
-      self.setStatusText("Textfile successfully readen")
+      self.setStatusText("Textfile successfully readen ("+str(len(topofile.trips))+" trips, "+str(len(topofile.series))+" series)")
 
       self.setStatusText("Reading the input Coord file")
       topoReader.readToporobotCoord(self.topoCoordFilePath, topofile)
@@ -146,7 +150,7 @@ class ToporobotImporterProcess(object):
         self.setStatusText("Reading the input Merge mapping file")
         topofiles = topoReader.readMergeMapping(self.mergeMappingFilePath, topofile)
         self.incStatusProgressValue()
-        self.setStatusText("Merge mapping file successfully readen")
+        self.setStatusText("Merge mapping file successfully readen ("+str(len(topofiles))+" original files)")
       else:
         topofiles = {topofile.name: topofile}
 
@@ -160,11 +164,13 @@ class ToporobotImporterProcess(object):
 
       self.setStatusText("Writing the outputs")
 
+      nbOutputs = 0
       for (outFilePath, layerName, drawer) in self.outFilePathWithLayerNameAndDrawer:
         if not outFilePath: continue
         self.draw(topofiles, drawer, outFilePath, layerName)
+        nbOutputs += 1
 
-      self.setStatusText("Output files successfully written. Import is finished. ")
+      self.setStatusText("Output files successfully written ("+str(nbOutputs)+" files). Import is finished. ")
 
     except Exception as e:
       exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -179,42 +185,21 @@ class ToporobotImporterProcess(object):
   def draw(self, topofiles, drawer, outPath, layerName):
 
     existingLayer = getLayerFromDatapath(outPath)
-    existingFile = os.path.exists(outPath)
+    existingFile = os.path.exists(outPath) or os.path.exists(getPathAlternate(outPath))
     shouldOverride = self.shouldOverride
-    shouldAppend = not shouldOverride
 
     if existingLayer:
-      if existingFile:
-        if not existingLayer.startEditing():
-          IOError("cannot edit the layer "+existingLayer.name())
-        if shouldOverride:
-          self.clearLayer(existingLayer)
-        self.drawOnLayer(topofiles, drawer, existingLayer)
-        if not existingLayer.commitChanges():
-          existingLayer.rollBack()
-          IOError("cannot save the layer "+existingLayer.name())
-      else:
-        self.drawOnNewFile(topofiles, drawer, outPath)
-        existingLayer.dataProvider().dataChanged()
+      self.drawOnLayer(topofiles, drawer, existingLayer, shouldOverride)
+    elif existingFile and not shouldOverride:
+      outPathShapefile = getPathShapefile(outPath)
+      layer = QgsVectorLayer(outPathShapefile, layerName, "ogr")
+      self.drawOnLayer(topofiles, drawer, layer, False)
+      #QgsProject.instance().addMapLayer(layer)
+    else: # override or no existing file
+      self.drawOnNewFile(topofiles, drawer, outPath, shouldOverride and existingFile)
 
-    else: # no such layer in QGIS
-      if shouldAppend and existingFile:
-        layer = QgsVectorLayer(outPath, layerName, "ogr")
-        if not layer.startEditing():
-          IOError("cannot edit the layer "+layer.name())
-        self.drawOnLayer(topofiles, drawer, layer)
-        if not layer.commitChanges():
-          layer.rollBack()
-          IOError("cannot save the layer "+layer.name())
-        QgsProject.instance().addMapLayer(layer)
-        #del layer
-      else: # override or no existing file
-        if existingFile:
-          self.deleteShapeFile(outPath)
-        self.drawOnNewFile(topofiles, drawer, outPath)
-        if self.shouldShowLayer:
-          self.displayLayer(outPath, layerName)
-
+    if self.shouldShowLayer and not existingLayer:
+      self.displayLayer(outPath, layerName)
     self.incStatusProgressValue()
 
 
@@ -223,13 +208,19 @@ class ToporobotImporterProcess(object):
       raise IOError("cannot delete the shapefile \'"+os.path.basename(outPath)+"\'")
 
 
-  def drawOnNewFile(self, topofiles, drawer, outPath):
+  def drawOnNewFile(self, topofiles, drawer, outPath, shouldOverride):
+    if shouldOverride:
+      self.deleteShapeFile(outPath)
     writer = QgsVectorFileWriter(outPath, 'UTF-8', drawer.fields(), drawer.wkbType(), self.coordRefSystem, "ESRI Shapefile")
     if writer.hasError():
       raise IOError("cannot create the shapefile \'"+os.path.basename(outPath)+"\'")
-    drawer.draw(topofiles, writer)
-    #drawer.draw(topofiles, WriterWrapper(writer, os.path.basename(outPath)))
-    del writer # flush and close the output file
+    nbFeature = drawer.draw(topofiles, writer)
+    #nbFeature = drawer.draw(topofiles, WriterWrapper(writer, os.path.basename(outPath)))
+    writer.finalize() # flush etc.
+    if (writer.hasError()):
+      raise IOError("error writing to new "+os.path.basename(outPath)+": "+writer.errorMessage())
+    self.setStatusText("Written "+str(nbFeature)+" features to new "+outPath)
+    return nbFeature
 
 
   def clearLayer(self, layer):
@@ -238,15 +229,23 @@ class ToporobotImporterProcess(object):
       raise IOError("cannot delete the features of the layer "+layer.name())
 
 
-  def drawOnLayer(self, topofiles, drawer, layer):
-    drawer.draw(topofiles, layer)
-    #drawer.draw(topofiles, WriterWrapper(layer, layer.name()))
+  def drawOnLayer(self, topofiles, drawer, layer, shouldOverride):
+    if not layer.startEditing():
+      IOError("cannot edit the layer "+layer.name())
+    if shouldOverride:
+      self.clearLayer(layer)
+    nbFeature = drawer.draw(topofiles, layer)
+    #nbFeature = drawer.draw(topofiles, WriterWrapper(layer, layer.name()))
+    self.setStatusText("Written "+str(nbFeature)+" features to existing "+layer.name())
+    if not layer.commitChanges():
+      layer.rollBack()
+      IOError("cannot save the layer "+layer.name())
+    return nbFeature
 
 
   def displayLayer(self, outPath, layerName):
     iface = qgis.utils.iface
-    if not outPath[-4:].lower().endswith(".shp"):
-      outPath = outPath + ".shp"
+    outPath = getPathShapefile(outPath)
     if not iface.addVectorLayer(outPath, layerName, "ogr"):
       QgsMessageLog.logMessage("cannot add the layer "+os.path.basename(outPath),
                                "Toporobot Importer", QgsMessageLog.WARNING)
@@ -256,16 +255,26 @@ class ToporobotImporterProcess(object):
 def getLayerFromDatapath(datapath):
     existingLayer = None
     datapath = os.path.abspath(str(datapath))
-    if datapath[-4:].lower().endswith(".shp"):
-      datapath2 = datapath[0:-4]
-    else:
-      datapath2 = datapath + ".shp"
+    datapath2 = getPathAlternate(datapath)
     for layer in list(QgsProject.instance().mapLayers().values()):
       layerpath = os.path.abspath(str(layer.source()))
       if layerpath == datapath or layerpath == datapath2:
         existingLayer = layer
         break
     return existingLayer
+
+
+def getPathAlternate(datapath):
+    if datapath[-4:].lower().endswith(".shp"):
+      return datapath[0:-4]
+    else:
+      return datapath + ".shp"
+
+
+def getPathShapefile(datapath):
+    if not datapath[-4:].lower().endswith(".shp"):
+      return datapath + ".shp"
+    return datapath
 
 
 class WriterWrapper(object):

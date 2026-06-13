@@ -83,6 +83,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="filter">
+         <string>Toporobot .Text (*.Text);;All files (*.*)</string>
+        </property>
+        <property name="dialogTitle">
+         <string>Input Toporobot .Text file</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -123,6 +129,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="filter">
+         <string>Toporobot .Coord (*.Coord);;All files (*.*)</string>
+        </property>
+        <property name="dialogTitle">
+         <string>Input Toporobot .Coord file</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -156,7 +168,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QgsFileWidget" name="leMergeMapping" native="true"/>
+       <widget class="QgsFileWidget" name="leMergeMapping" native="true">
+        <property name="filter">
+         <string>Comma-separated values (*.csv);;All (*.*)</string>
+        </property>
+        <property name="dialogTitle">
+         <string>Input Merge mapping file</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QToolButton" name="bBrowseMergeMapping">
@@ -493,7 +512,7 @@
       <item>
        <widget class="QgsFileWidget" name="leOutSeriesBorder" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

@@ -51,16 +51,10 @@ class ToporobotImporterDialog(QDialog):
     
     ui.leEncoding.insert('mac_roman') # Toporobot comes from Mac
 
-    # unsuccessful trial to set file filter on QgsFileWidget
-    ui.leToporobotText.filter = "*.Text;;*.*"
-    ui.leToporobotText.dialogTitle = "Input Toporobot .Text file"
     ui.leToporobotText.defaultRoot = self.lastInputDirectory
     ui.leToporobotText.fileChanged.connect(self.updateLastInputDirectory)
-    ui.leToporobotCoord.filter = "Toporobot (*.Coord)"
-    ui.leToporobotCoord.lineEdit().filters = "Toporobot (*.Coord)"
-    ui.leMergeMapping.selectedFilter = "*.csv"
-    ui.leOutPoints.storageMode = QgsFileWidget.StorageMode.SaveFile
-    ui.leOutAims.storageMode = QgsFileWidget.SaveFile
+    for (outputFileSelector) in [ui.leOutPoints, ui.leOutAims, ui.leOutAimsSurface, ui.leOutSeries, ui.leOutSeriesBorder]:
+      outputFileSelector.setStorageMode(QgsFileWidget.StorageMode.SaveFile)
 
     # connect the buttons to actions
     ui.bBrowseToporobotText.clicked.connect(self.browseForInToporobotTextFileFunction(ui.leToporobotText))
@@ -108,8 +102,6 @@ class ToporobotImporterDialog(QDialog):
 
     # now really show
     super(ToporobotImporterDialog, self).show()
-    ui.leToporobotText.filter = "*.Text;;*.*"
-    ui.leMergeMapping.setSelectedFilter("*.csv")
 
 
   def browseForInToporobotTextFileFunction(self, lineedit):

@@ -22,7 +22,8 @@ PLUGIN_UPLOAD = $(CURDIR)/plugin_upload.py
 
 QGISDIR=Library/Application\ Support/QGIS/QGIS3/profiles/default
 
-PYQGIS=/Applications/QGIS3.10.app/Contents/Frameworks/Python.framework/Versions/3.7/bin/python3.7
+PYQGIS=/Applications/QGIS_3.44.app/Contents/MacOS/python
+#PYQGIS=/Applications/QGIS_3.44.app/Contents/Resources/scripts/python
 
 # Makefile for a PyQGIS plugin 
 
@@ -80,6 +81,7 @@ dclean:
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "__pycache__" -delete
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".svn" -prune -exec rm -Rf {} \;
+	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".DS_Store" -prune -exec rm -Rf {} \;
 
 # The derase deletes deployed plugin
 derase:
@@ -97,9 +99,9 @@ zip: deploy dclean
 # To use, pass a valid commit or tag as follows:
 #   make package VERSION=Version_0.3.2
 package: compile
-		rm -f $(PLUGINNAME).zip
-		git archive --prefix=$(PLUGINNAME)/ -o $(PLUGINNAME).zip $(VERSION)
-		echo "Created package: $(PLUGINNAME).zip"
+	rm -f $(PLUGINNAME).zip
+	git archive --prefix=$(PLUGINNAME)/ -o $(PLUGINNAME).zip $(VERSION)
+	echo "Created package: $(PLUGINNAME).zip"
 
 upload: zip
 	$(PLUGIN_UPLOAD) $(PLUGINNAME).zip
@@ -107,7 +109,7 @@ upload: zip
 # transup
 # update .ts translation files
 transup:
-	pylupdate4 Makefile
+	pylupdate5 Makefile
 
 # transcompile
 # compile translation files into .qm binary format
